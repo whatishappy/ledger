@@ -48,7 +48,8 @@ const routes: RouteRecordRaw[] = [
 ]
 
 const router = createRouter({
-  history: createWebHistory(),
+  // base 取自 vite BASE_URL（/app/），路由内部路径不变，访问 URL 自动带 /app 前缀
+  history: createWebHistory(import.meta.env.BASE_URL),
   routes,
 })
 

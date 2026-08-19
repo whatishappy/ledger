@@ -5,6 +5,8 @@ import vue from '@vitejs/plugin-vue'
 
 // https://vite.dev/config/
 export default defineConfig({
+  // Vue 应用挂载在 /app 下，/ 留给介绍页静态页（Nginx 路由见设计文档 §12.6）
+  base: '/app/',
   plugins: [vue()],
   resolve: {
     alias: {
