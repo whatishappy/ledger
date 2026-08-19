@@ -1,0 +1,32 @@
+# 开发环境配置（本地）
+spring:
+  datasource:
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    url: jdbc:mysql://localhost:3306/ledger?useUnicode=true&characterEncoding=utf8&useSSL=false&serverTimezone=Asia/Shanghai&allowPublicKeyRetrieval=true
+    username: root
+    password: 123456
+  data:
+    redis:
+      host: 192.168.10.101
+      port: 6379
+      password: 123456
+      database: 0
+      timeout: 3000ms
+
+# Redisson 配置：通过独立 yaml 文件加载（官方推荐方式）
+redisson:
+  file: classpath:redisson-dev.yaml
+
+# 导出文件存储路径
+export:
+  file-path: ./exports/
+  # 异步导出阈值
+  sync-threshold: 10000
+  # 最大导出行数
+  max-rows: 1000000
+  # 文件保留天数
+  retain-days: 7
+
+logging:
+  level:
+    com.ledger: DEBUG

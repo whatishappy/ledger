@@ -1,0 +1,200 @@
+/* ============================================================
+   个人云端记账本 — 设计系统全局样式
+   来源：design-system/ledger/MASTER.md
+   风格：信任蓝 + 盈利绿（财务场景，禁止手写/休闲风格）
+   ============================================================ */
+
+/* Figtree 仅拉丁字形；中文走系统栈，避免 CJK webfont 体积与闪烁 */
+@import url('https://fonts.googleapis.com/css2?family=Figtree:wght@300;400;500;600;700&display=swap');
+
+:root {
+  /* ---- 财务语义色（亮色） ---- */
+  --color-income: #059669;       /* 收入 type=1 */
+  --color-expense: #dc2626;      /* 支出 type=0、删除动作 */
+  --color-budget-normal: #059669;   /* 预算 <60% */
+  --color-budget-warn: #eab308;     /* 预算 <90% */
+  --color-budget-over: #dc2626;     /* 预算 ≥100% */
+
+  /* ---- 品牌色 ---- */
+  --brand-primary: #1e40af;
+  --brand-primary-dark: #1e3a8a;
+  --brand-secondary: #3b82f6;
+
+  /* ---- Element Plus 亮色主题映射（MASTER §Element Plus 主题映射） ---- */
+  --el-color-primary: #1e40af;
+  --el-color-primary-light-3: #6d8ad4;
+  --el-color-primary-light-5: #a0b4e2;
+  --el-color-primary-light-7: #d3ddf1;
+  --el-color-primary-light-8: #e9eff9;
+  --el-color-primary-light-9: #f4f7fc;
+  --el-color-primary-dark-2: #1e3a8a;
+  --el-bg-color: #f8fafc;
+  --el-bg-color-overlay: #ffffff;
+  --el-fill-color-blank: #ffffff;
+  --el-border-color: #e2e8f0;
+  --el-border-color-light: #edf1f7;
+  --el-border-color-lighter: #f1f5f9;
+  --el-text-color-primary: #0f172a;
+  --el-text-color-regular: #334155;
+  --el-text-color-secondary: #64748b;
+  --el-border-radius-base: 8px;
+  --el-font-family: 'Figtree', 'PingFang SC', 'Microsoft YaHei', 'Noto Sans SC',
+    -apple-system, 'Segoe UI', sans-serif;
+
+  /* ---- 阴影（MASTER Shadow Depths） ---- */
+  --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.05);
+  --shadow-md: 0 4px 6px rgba(0, 0, 0, 0.1);
+  --shadow-lg: 0 10px 15px rgba(0, 0, 0, 0.1);
+  --shadow-xl: 0 20px 25px rgba(0, 0, 0, 0.15);
+}
+
+/* 暗色：配合 element-plus/theme-chalk/dark/css-vars.css */
+html.dark {
+  --color-income: #22c55e;
+  --color-expense: #f87171;
+  --color-budget-normal: #22c55e;
+  --color-budget-warn: #fbbf24;
+  --color-budget-over: #f87171;
+
+  --brand-primary: #3b82f6;
+  --brand-secondary: #60a5fa;
+
+  --el-color-primary: #3b82f6;
+  --el-color-primary-light-3: #60a5fa;
+  --el-color-primary-light-5: #93c5fd;
+  --el-color-primary-light-7: #c7dcfe;
+  --el-color-primary-light-8: #dceafe;
+  --el-color-primary-light-9: #eff6ff;
+  --el-color-primary-dark-2: #60a5fa;
+  --el-bg-color: #0f172a;
+  --el-bg-color-overlay: #192134;
+  --el-fill-color-blank: #192134;
+  --el-border-color: rgba(255, 255, 255, 0.12);
+  --el-border-color-light: rgba(255, 255, 255, 0.08);
+  --el-border-color-lighter: rgba(255, 255, 255, 0.06);
+  --el-text-color-primary: #f8fafc;
+  --el-text-color-regular: #cbd5e1;
+  --el-text-color-secondary: #94a3b8;
+}
+
+/* ---- 基础重置 ---- */
+* {
+  box-sizing: border-box;
+}
+
+html,
+body,
+#app {
+  height: 100%;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  font-family: var(--el-font-family);
+  font-size: 14px;
+  line-height: 1.5;
+  color: var(--el-text-color-primary);
+  background-color: var(--el-bg-color);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  transition:
+    background-color 0.25s ease,
+    color 0.25s ease;
+}
+
+/* 尊重系统减少动效偏好 */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+/* ---- 通用工具类 ---- */
+
+/* 金额/数字等宽对齐 */
+.tabular-nums,
+.money {
+  font-variant-numeric: tabular-nums;
+}
+
+/* 收入/支出文字色 */
+.text-income {
+  color: var(--color-income);
+}
+.text-expense {
+  color: var(--color-expense);
+}
+
+/* 视觉隐藏但保留给屏幕阅读器（aria-live 朗读区等） */
+.visually-hidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  margin: -1px;
+  padding: 0;
+  border: 0;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+}
+
+/* 财务语义标签色（Tag 用对应 9% 浅底 + 语义色文字） */
+.tag-income {
+  --el-tag-bg-color: rgba(5, 150, 105, 0.1);
+  --el-tag-border-color: rgba(5, 150, 105, 0.25);
+  --el-tag-text-color: var(--color-income);
+}
+.tag-expense {
+  --el-tag-bg-color: rgba(220, 38, 38, 0.1);
+  --el-tag-border-color: rgba(220, 38, 38, 0.25);
+  --el-tag-text-color: var(--color-expense);
+}
+
+/* 页面通用卡片（数据表面：实心卡片 + 1px 描边 + 轻阴影，禁用玻璃） */
+.page-card {
+  background: var(--el-bg-color-overlay);
+  border: 1px solid var(--el-border-color-light);
+  border-radius: 12px;
+  box-shadow: var(--shadow-sm);
+}
+
+/* 所有可点击元素必须有手型光标 */
+button,
+[role='button'],
+.el-button,
+.el-menu-item,
+.el-dropdown-link,
+a,
+.clickable {
+  cursor: pointer;
+}
+
+/* 平滑过渡（150-300ms），避免布局抖动 */
+.el-button,
+.el-card,
+.el-menu-item,
+.el-tag,
+.clickable {
+  transition:
+    color 0.2s ease,
+    background-color 0.2s ease,
+    border-color 0.2s ease,
+    box-shadow 0.2s ease;
+}
+
+/* ---- 滚动条美化（WebKit） ---- */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+::-webkit-scrollbar-thumb {
+  background: var(--el-border-color);
+  border-radius: 4px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}

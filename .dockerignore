@@ -1,0 +1,10 @@
+target/
+.git/
+.idea/
+*.iml
+*.md
+.trae/
+exports/
+logs/
+monitoring/grafana-data/
+monitoring/prometheus-data/

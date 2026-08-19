@@ -1,0 +1,37 @@
+# 生产环境配置（VM 192.168.10.101）
+# MySQL 与 Redis 复用 VM 现有实例，通过环境变量注入连接信息
+spring:
+  datasource:
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    url: jdbc:mysql://${MYSQL_HOST:192.168.10.101}:${MYSQL_PORT:3306}/${MYSQL_DATABASE:ledger}?useUnicode=true&characterEncoding=utf8&useSSL=false&serverTimezone=Asia/Shanghai&allowPublicKeyRetrieval=true
+    username: ${MYSQL_USERNAME:root}
+    password: ${MYSQL_PASSWORD:}
+  data:
+    redis:
+      host: ${REDIS_HOST:192.168.10.101}
+      port: ${REDIS_PORT:6379}
+      database: ${REDIS_DATABASE:0}
+      password: ${REDIS_PASSWORD:}
+      timeout: 3000ms
+
+# Redisson 配置：通过独立 yaml 文件加载（官方推荐方式）
+redisson:
+  file: classpath:redisson-prod.yaml
+
+# JWT 密钥（通过环境变量注入）
+jwt:
+  secret: ${JWT_SECRET:ledger-prod-jwt-secret-key-change-me-2026-production-environment}
+
+# 导出文件存储路径
+export:
+  file-path: /app/exports/
+  sync-threshold: 10000
+  max-rows: 1000000
+  retain-days: 7
+
+logging:
+  level:
+    root: INFO
+    com.ledger: INFO
+  file:
+    name: /app/logs/ledger.log
