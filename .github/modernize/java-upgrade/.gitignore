@@ -1,0 +1,12 @@
+# AI工具目录
+.claude/
+.trae/
+
+# IDE缓存
+.idea/
+
+# Java编译产物
+target/
+
+# 系统文件
+.DS_Store

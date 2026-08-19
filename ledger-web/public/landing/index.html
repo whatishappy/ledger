@@ -1,0 +1,272 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Ledger · 3 秒记账，AI 懂你的每一笔</title>
+  <meta name="description" content="自然语言记账 · 小票 OCR · 智能预算 · 财务周报 · 100% 开源自托管" />
+  <meta name="theme-color" content="#F2EEE5" />
+
+  <!-- Google Fonts：Cormorant Garamond（大标题）+ Inter（正文） -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link
+    href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;500;600;700&family=Inter:wght@300;400;500;600;700&display=swap"
+    rel="stylesheet"
+  />
+
+  <!-- Tailwind CSS（CDN） + Iconify 图标 -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://code.iconify.design/iconify-icon/2.1.0/iconify-icon.min.js"></script>
+
+  <link rel="stylesheet" href="css/style.css" />
+</head>
+
+<body>
+  <!-- ================= Header ================= -->
+  <header id="site-header" class="site-header">
+    <nav class="nav-wrap">
+      <a href="#" class="nav-logo" aria-label="Ledger 首页">Ledger</a>
+
+      <ul class="nav-links" id="nav-links">
+        <li><a href="#features">功能</a></li>
+        <li><a href="#stack">技术栈</a></li>
+        <li><a href="#faq">常见问题</a></li>
+      </ul>
+
+      <div class="nav-actions">
+        <!-- TODO: 替换为真实开源仓库地址 -->
+        <a class="nav-gh" href="#" aria-label="GitHub 仓库" target="_blank" rel="noopener">
+          <iconify-icon icon="simple-icons:github" width="22" height="22"></iconify-icon>
+        </a>
+        <a class="btn-cta" href="/app/login">立即体验</a>
+        <button
+          class="nav-burger"
+          id="nav-burger"
+          aria-label="打开导航菜单"
+          aria-expanded="false"
+          aria-controls="nav-links"
+        >
+          <span></span><span></span><span></span>
+        </button>
+      </div>
+    </nav>
+  </header>
+
+  <!-- ================= Hero ================= -->
+  <section class="hero">
+    <div class="hero-glow" aria-hidden="true"></div>
+    <div class="hero-inner">
+      <h1 class="hero-title">
+        <span class="wr" style="--i: 0">3 秒记账，</span>
+        <span class="wr" style="--i: 1">AI 懂你的</span>
+        <span class="wr" style="--i: 2">每一笔</span>
+      </h1>
+      <p class="hero-sub">自然语言记账 · 小票 OCR · 智能预算 · 财务周报</p>
+
+      <div class="hero-visual parallax-float">
+        <div class="hero-frame">
+          <img src="images/hero.jpg" alt="Ledger 记账仪表盘界面预览" />
+        </div>
+      </div>
+
+      <a class="btn-cta btn-cta-lg" href="/app/login">立即体验 →</a>
+    </div>
+  </section>
+
+  <!-- ================= Proof Ribbon ================= -->
+  <section class="ribbon" aria-label="产品亮点数据">
+    <div class="ribbon-inner">
+      <div class="ribbon-item">
+        <div class="ribbon-num" data-count="3" data-suffix="秒">0秒</div>
+        <div class="ribbon-label">极速记账</div>
+      </div>
+      <div class="ribbon-item">
+        <div class="ribbon-num" data-count="7" data-suffix="+">0+</div>
+        <div class="ribbon-label">AI 智能能力</div>
+      </div>
+      <div class="ribbon-item">
+        <div class="ribbon-num" data-count="100" data-suffix="%">0%</div>
+        <div class="ribbon-label">开源自托管</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ================= Feature Carousel ================= -->
+  <section id="features" class="section">
+    <h2 class="section-title reveal">核心功能</h2>
+    <p class="section-desc reveal">把记账这件小事，交给 AI。</p>
+
+    <div class="carousel-wrap reveal">
+      <button class="carousel-arrow prev" id="carousel-prev" aria-label="上一组功能">
+        <iconify-icon icon="heroicons-outline:chevron-left"></iconify-icon>
+      </button>
+
+      <div class="carousel-track" id="carousel-track">
+        <article class="feature-card">
+          <div class="feature-img">
+            <img src="images/feature-1.jpg" alt="自然语言记账功能预览" loading="lazy" />
+          </div>
+          <div class="feature-body">
+            <iconify-icon class="feature-icon" icon="heroicons-outline:chat-bubble-left-right"></iconify-icon>
+            <h3>说句话就记完</h3>
+            <p>"今天打车 35" → 自动解析分类、金额、日期</p>
+          </div>
+        </article>
+        <article class="feature-card">
+          <div class="feature-img">
+            <img src="images/feature-2.jpg" alt="小票 OCR 功能预览" loading="lazy" />
+          </div>
+          <div class="feature-body">
+            <iconify-icon class="feature-icon" icon="heroicons-outline:camera"></iconify-icon>
+            <h3>拍照即入账</h3>
+            <p>上传小票，AI 自动识别金额和分类</p>
+          </div>
+        </article>
+        <article class="feature-card">
+          <div class="feature-img">
+            <img src="images/feature-3.jpg" alt="账单导入功能预览" loading="lazy" />
+          </div>
+          <div class="feature-body">
+            <iconify-icon class="feature-icon" icon="heroicons-outline:arrow-down-tray"></iconify-icon>
+            <h3>一键导入账单</h3>
+            <p>支付宝/微信账单导入，省 80% 手动输入</p>
+          </div>
+        </article>
+        <article class="feature-card">
+          <div class="feature-img">
+            <img src="images/feature-4.jpg" alt="AI 预算推荐预览" loading="lazy" />
+          </div>
+          <div class="feature-body">
+            <iconify-icon class="feature-icon" icon="heroicons-outline:chart-bar"></iconify-icon>
+            <h3>AI 帮你定预算</h3>
+            <p>基于近 3 个月消费数据，自动推荐各分类预算</p>
+          </div>
+        </article>
+        <article class="feature-card">
+          <div class="feature-img">
+            <img src="images/feature-5.jpg" alt="财务周报预览" loading="lazy" />
+          </div>
+          <div class="feature-body">
+            <iconify-icon class="feature-icon" icon="heroicons-outline:envelope"></iconify-icon>
+            <h3>每周自动周报</h3>
+            <p>周一收到 AI 生成的消费总结和省钱建议</p>
+          </div>
+        </article>
+        <article class="feature-card">
+          <div class="feature-img">
+            <img src="images/feature-6.jpg" alt="自然语言问答预览" loading="lazy" />
+          </div>
+          <div class="feature-body">
+            <iconify-icon class="feature-icon" icon="heroicons-outline:magnifying-glass"></iconify-icon>
+            <h3>问一句查一笔</h3>
+            <p>"7 月外卖花了多少" → AI 直接回答</p>
+          </div>
+        </article>
+      </div>
+
+      <button class="carousel-arrow next" id="carousel-next" aria-label="下一组功能">
+        <iconify-icon icon="heroicons-outline:chevron-right"></iconify-icon>
+      </button>
+    </div>
+  </section>
+
+  <!-- ================= Integrations Orbit ================= -->
+  <section id="stack" class="section stack-section">
+    <h2 class="section-title reveal">技术栈</h2>
+    <p class="section-desc reveal">从框架到向量数据库，全链路开源可自托管。</p>
+
+    <div class="orbit-container reveal" id="orbit">
+      <div class="orbit-center">
+        <img src="images/logo.png" alt="Ledger 标志" />
+      </div>
+      <div class="orbit-ring">
+        <div class="orbit-item" style="--i: 0">
+          <iconify-icon class="orbit-ico" icon="simple-icons:springboot"></iconify-icon>
+          <span class="orbit-label">Spring Boot</span>
+        </div>
+        <div class="orbit-item" style="--i: 1">
+          <iconify-icon class="orbit-ico" icon="simple-icons:vuedotjs"></iconify-icon>
+          <span class="orbit-label">Vue 3</span>
+        </div>
+        <div class="orbit-item" style="--i: 2">
+          <iconify-icon class="orbit-ico" icon="simple-icons:mysql"></iconify-icon>
+          <span class="orbit-label">MySQL</span>
+        </div>
+        <div class="orbit-item" style="--i: 3">
+          <iconify-icon class="orbit-ico" icon="heroicons-outline:chart-bar"></iconify-icon>
+          <span class="orbit-label">ECharts</span>
+        </div>
+        <div class="orbit-item" style="--i: 4">
+          <iconify-icon class="orbit-ico" icon="simple-icons:langchain"></iconify-icon>
+          <span class="orbit-label">LangChain4j</span>
+        </div>
+        <div class="orbit-item" style="--i: 5">
+          <iconify-icon class="orbit-ico" icon="simple-icons:redis"></iconify-icon>
+          <span class="orbit-label">Redis</span>
+        </div>
+        <div class="orbit-item" style="--i: 6">
+          <iconify-icon class="orbit-ico" icon="simple-icons:docker"></iconify-icon>
+          <span class="orbit-label">Docker</span>
+        </div>
+        <div class="orbit-item" style="--i: 7">
+          <iconify-icon class="orbit-ico" icon="simple-icons:milvus"></iconify-icon>
+          <span class="orbit-label">Milvus</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ================= FAQ ================= -->
+  <section id="faq" class="section faq-section">
+    <h2 class="section-title reveal">常见问题</h2>
+    <div class="faq-list">
+      <div class="faq-item">
+        <button class="faq-q" aria-expanded="false">
+          <span>怎么部署？</span>
+          <iconify-icon class="faq-chevron" icon="heroicons-outline:chevron-down"></iconify-icon>
+        </button>
+        <div class="faq-a"><p>Docker 一键启动，支持 MySQL + Redis + Milvus。详细步骤见 README。</p></div>
+      </div>
+      <div class="faq-item">
+        <button class="faq-q" aria-expanded="false">
+          <span>AI 功能要花钱吗？</span>
+          <iconify-icon class="faq-chevron" icon="heroicons-outline:chevron-down"></iconify-icon>
+        </button>
+        <div class="faq-a"><p>支持百炼/智谱免费额度，个人使用月均成本 &lt; 10 元。也可配置自己的 API Key。</p></div>
+      </div>
+      <div class="faq-item">
+        <button class="faq-q" aria-expanded="false">
+          <span>数据安全吗？</span>
+          <iconify-icon class="faq-chevron" icon="heroicons-outline:chevron-down"></iconify-icon>
+        </button>
+        <div class="faq-a"><p>100% 自托管，数据不出你的服务器。JWT 鉴权 + 用户数据隔离。</p></div>
+      </div>
+      <div class="faq-item">
+        <button class="faq-q" aria-expanded="false">
+          <span>支持什么数据库？</span>
+          <iconify-icon class="faq-chevron" icon="heroicons-outline:chevron-down"></iconify-icon>
+        </button>
+        <div class="faq-a"><p>当前支持 MySQL 8.0+，后续计划支持 PostgreSQL。</p></div>
+      </div>
+      <div class="faq-item">
+        <button class="faq-q" aria-expanded="false">
+          <span>开源协议是什么？</span>
+          <iconify-icon class="faq-chevron" icon="heroicons-outline:chevron-down"></iconify-icon>
+        </button>
+        <div class="faq-a"><p>MIT 协议，欢迎 Star 和 PR。</p></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ================= Footer ================= -->
+  <footer class="site-footer">
+    <p>Ledger · 让每一笔收支都有迹可循</p>
+    <p class="footer-meta">MIT License · 100% 开源自托管</p>
+  </footer>
+
+  <script src="js/main.js"></script>
+  <script src="js/carousel.js"></script>
+  <script src="js/orbit.js"></script>
+</body>
+</html>
