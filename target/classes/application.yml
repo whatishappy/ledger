@@ -19,8 +19,10 @@ spring:
 
 # MyBatis-Plus 配置
 mybatis-plus:
-  mapper-locations: classpath*:com/ledger/modules/**/mapper/xml/*.xml
-  type-aliases-package: com.ledger.modules.**.entity
+  mapper-locations:
+    - classpath*:com/ledger/modules/**/mapper/xml/*.xml
+    - classpath*:mapper/**/*.xml
+  type-aliases-package: com.ledger.modules.**.entity,com.ledger.dto.**.**,com.ledger.vo.**.**
   global-config:
     db-config:
       id-type: auto
@@ -81,6 +83,12 @@ springdoc:
     - group: 导出模块
       paths-to-match: /api/export/**
       packages-to-scan: com.ledger.modules.export
+    - group: 日历模块
+      paths-to-match: /api/v1/calendar/**
+      packages-to-scan: com.ledger.controller.calendar
+    - group: AI模块
+      paths-to-match: /api/v1/ai/**
+      packages-to-scan: com.ledger.modules.ai
 
 # Actuator 监控端点配置
 management:

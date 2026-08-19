@@ -44,6 +44,12 @@ public class User implements Serializable {
      */
     private Integer status;
 
+    /**
+     * 头像URL
+     */
+    @TableField("avatar_url")
+    private String avatarUrl;
+
     @TableField("created_at")
     private LocalDateTime createdAt;
 

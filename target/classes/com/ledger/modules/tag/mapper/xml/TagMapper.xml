@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ledger.modules.tag.mapper.TagMapper">
+
+    <resultMap id="TagStatItemMap" type="com.ledger.modules.tag.vo.TagStatItem">
+        <result property="tagId" column="tagId"/>
+        <result property="tagName" column="tagName"/>
+        <result property="color" column="color"/>
+        <result property="totalAmount" column="totalAmount"/>
+        <result property="transactionCount" column="transactionCount"/>
+        <result property="percentage" column="percentage"/>
+    </resultMap>
+
+    <select id="getTagStatistics" resultMap="TagStatItemMap">
+        SELECT
+            t.id AS tagId,
+            t.name AS tagName,
+            t.color AS color,
+            COALESCE(SUM(
+                CASE
+                    WHEN a.type = 0 THEN a.amount
+                    WHEN a.type = 1 THEN a.amount
+                    ELSE 0
+                END
+            ), 0) AS totalAmount,
+            COUNT(DISTINCT a.id) AS transactionCount,
+            COALESCE(
+                COUNT(DISTINCT a.id) * 100.0 / NULLIF(
+                    (SELECT COUNT(*) FROM account_book a2
+                     WHERE a2.user_id = #{userId}
+                       AND a2.is_deleted = 0
+                       AND YEAR(a2.account_date) = #{year}
+                       AND MONTH(a2.account_date) = #{month}),
+                    0
+                ),
+                0
+            ) AS percentage
+        FROM tag t
+        LEFT JOIN account_tag at ON t.id = at.tag_id
+        LEFT JOIN account_book a ON at.account_id = a.id
+            AND a.user_id = #{userId}
+            AND a.is_deleted = 0
+            AND YEAR(a.account_date) = #{year}
+            AND MONTH(a.account_date) = #{month}
+        WHERE t.user_id = #{userId}
+        GROUP BY t.id, t.name, t.color
+        ORDER BY totalAmount DESC
+    </select>
+
+</mapper>
