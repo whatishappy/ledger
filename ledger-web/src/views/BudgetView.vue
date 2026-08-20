@@ -29,7 +29,7 @@ async function loadBudgets() {
 /* ---------- 进度条颜色：<60% 绿 / <90% 黄 / ≥100% 红 ---------- */
 function progressColor(progress: number): string {
   if (progress >= 100) return 'var(--color-budget-over)'
-  if (progress >= 90) return 'var(--color-budget-warn)'
+  if (progress >= 60) return 'var(--color-budget-warn)'
   return 'var(--color-budget-normal)'
 }
 
@@ -119,7 +119,7 @@ onMounted(loadBudgets)
             <span class="cat-name">{{ item.category }}</span>
           </div>
           <el-tag v-if="item.isOverBudget" type="danger" size="small" effect="dark">超支</el-tag>
-          <el-tag v-else-if="item.progress >= 90" type="warning" size="small" effect="plain">预警</el-tag>
+          <el-tag v-else-if="item.progress >= 60" type="warning" size="small" effect="plain">预警</el-tag>
         </div>
 
         <el-progress
@@ -176,7 +176,7 @@ onMounted(loadBudgets)
       </div>
       <p class="dialog-tip">
         <el-icon><InfoFilled /></el-icon>
-        已设置的分类可修改消费目标，但重复提交会提示“该分类本月已有预算”。
+        已设置的分类本月不可调整；填写未设置分类的预算后点击保存即可生效。
       </p>
       <template #footer>
         <el-button @click="dialogVisible = false">取消</el-button>

@@ -289,7 +289,7 @@ onBeforeUnmount(() => {
             :stroke-width="10"
             :show-text="true"
             :format="() => `${item.progress.toFixed(1)}%`"
-            :color="item.progress >= 100 ? 'var(--color-budget-over)' : item.progress >= 90 ? 'var(--color-budget-warn)' : 'var(--color-budget-normal)'"
+            :color="item.progress >= 100 ? 'var(--color-budget-over)' : item.progress >= 60 ? 'var(--color-budget-warn)' : 'var(--color-budget-normal)'"
           />
         </div>
       </div>
