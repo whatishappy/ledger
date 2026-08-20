@@ -63,17 +63,22 @@ public class AiChatServiceImpl implements AiChatService {
 
     private static String buildSystemPrompt() {
         return "你是一位专业的个人财务助手，服务于中文用户。" +
-                "你可以调用以下7种工具来帮助用户（通过输出特殊的TOOL_CALL标记触发）：\n" +
-                "1. natural_lang_bookkeeping(userId,date,type,category,amount,remark) - 自然语言记账，type=0支出/1收入，金额为BigDecimal\n" +
-                "2. queryTransactions(userId,startDate,endDate,category,limit) - 查询交易，返回JSON\n" +
+                "你可以调用以下11种工具来帮助用户（通过输出特殊的TOOL_CALL标记触发）：\n" +
+                "1. natural_lang_bookkeeping(userId,date,type,category,amount,remark) - 自然语言记账，type=0支出/1收入\n" +
+                "2. queryTransactions(userId,startDate,endDate,category,limit) - 查询交易\n" +
                 "3. get_dashboard_summary(userId,month) - 获取某月仪表盘汇总\n" +
                 "4. get_budget_status(userId,month) - 获取某月预算执行进度\n" +
                 "5. get_tag_statistics(userId,year,month) - 获取月度标签统计\n" +
                 "6. get_calendar_heatmap(userId,month) - 获取某月日历热力图\n" +
-                "7. generate_saving_suggestions(userId,month) - 生成个性化省钱建议\n" +
+                "7. generate_saving_suggestions(userId,month) - 基础省钱建议\n" +
+                "8. receipt_ocr(userId,imageUrl) - OCR识别小票图片\n" +
+                "9. predict_expense(userId,month) - 预测指定月份的支出\n" +
+                "10. recommend_budget(userId,month) - 智能预算推荐\n" +
+                "11. generate_weekly_report(userId) - 生成周度财务报告\n" +
                 "调用工具时，仅输出单行JSON：{\"tool\":\"toolName\",\"args\":{key:value,...}}，不要有额外文字。" +
-                "用户ID会由系统自动注入，你不需要关心。" +
-                "收到工具返回结果后，再用自然语言总结给用户。\n" +
+                "用户ID会由系统自动注入。" +
+                "根据用户意图选择最合适的工具：小票图片→receipt_ocr；支出预测→predict_expense；预算建议→recommend_budget；财务报告→generate_weekly_report。" +
+                "收到工具返回结果后，用自然语言总结给用户。\n" +
                 "回答要简洁、友好、专业，中文输出。";
     }
 
@@ -141,8 +146,10 @@ public class AiChatServiceImpl implements AiChatService {
                 if (i == 0 && backupChatLanguageModel != null) {
                     try {
                         rawModelOutput = callModelViaReflection(backupChatLanguageModel, loopMessages);
+                        aiGuardService.recordBackupSuccess();
                         if (rawModelOutput == null) rawModelOutput = "";
                     } catch (Exception ex) {
+                        aiGuardService.recordBackupFail();
                         if (fullAnswer.length() == 0) {
                             return degradeFallback(userId, sink);
                         }
@@ -270,6 +277,10 @@ public class AiChatServiceImpl implements AiChatService {
             case "getTagStatistics" -> new String[]{"userId","year","month"};
             case "getCalendarHeatmap" -> new String[]{"userId","month"};
             case "generateSavingSuggestions" -> new String[]{"userId","month"};
+            case "receiptOcr" -> new String[]{"userId","imageUrl"};
+            case "predictExpense" -> new String[]{"userId","month"};
+            case "recommendBudget" -> new String[]{"userId","month"};
+            case "generateWeeklyReport" -> new String[]{"userId"};
             default -> {
                 java.lang.reflect.Parameter[] params = m.getParameters();
                 String[] names = new String[params.length];

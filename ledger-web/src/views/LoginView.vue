@@ -134,6 +134,8 @@ async function handleRegister() {
 
     <!-- 右侧登录/注册面板 -->
     <main class="login-panel">
+      <!-- 返回介绍页（grill-me 共识：介绍页 ↔ 登录页双向闭环） -->
+      <a class="back-home" href="/" aria-label="返回首页">← 返回首页</a>
       <div class="form-card">
         <el-tabs v-model="activeTab" stretch>
           <el-tab-pane label="登录" name="login">
@@ -334,12 +336,28 @@ async function handleRegister() {
 
 /* ---------- 右侧表单 ---------- */
 .login-panel {
+  position: relative;
   flex: 1 1 45%;
   display: flex;
   align-items: center;
   justify-content: center;
   padding: 32px;
   background: var(--el-bg-color);
+}
+
+/* 返回介绍页链接 */
+.back-home {
+  position: absolute;
+  top: 24px;
+  right: 32px;
+  font-size: 14px;
+  color: var(--el-text-color-secondary);
+  text-decoration: none;
+  transition: color 0.2s;
+}
+
+.back-home:hover {
+  color: var(--color-primary, #1e40af);
 }
 
 .form-card {

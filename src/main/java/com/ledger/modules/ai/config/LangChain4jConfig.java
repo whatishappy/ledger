@@ -15,76 +15,94 @@ import java.time.Duration;
 @Configuration
 public class LangChain4jConfig {
 
-    @Value("${langchain4j.open-ai.chat-model.base-url:https://dashscope.aliyuncs.com/compatible-mode/v1}")
-    private String baseUrl;
+    @Value("${langchain4j.primary.base-url:}")
+    private String primaryBaseUrl;
 
-    @Value("${langchain4j.open-ai.chat-model.api-key:}")
-    private String apiKey;
+    @Value("${langchain4j.primary.api-key:}")
+    private String primaryApiKey;
 
-    @Value("${langchain4j.open-ai.chat-model.model-name:qwen-plus}")
-    private String modelName;
+    @Value("${langchain4j.primary.model-name:}")
+    private String primaryModelName;
 
-    @Value("${langchain4j.open-ai.chat-model.timeout:30s}")
-    private Duration timeout;
+    @Value("${langchain4j.primary.timeout:60s}")
+    private Duration primaryTimeout;
 
-    @Value("${langchain4j.open-ai.backup.model-name:qwen-turbo}")
+    @Value("${langchain4j.primary.temperature:0.3}")
+    private Double primaryTemperature;
+
+    @Value("${langchain4j.backup.base-url:}")
+    private String backupBaseUrl;
+
+    @Value("${langchain4j.backup.api-key:}")
+    private String backupApiKey;
+
+    @Value("${langchain4j.backup.model-name:}")
     private String backupModelName;
+
+    @Value("${langchain4j.backup.timeout:60s}")
+    private Duration backupTimeout;
+
+    @Value("${langchain4j.backup.temperature:0.3}")
+    private Double backupTemperature;
 
     @Bean
     public ChatLanguageModel chatLanguageModel() {
-        if (apiKey == null || apiKey.isBlank()) {
-            log.warn("LangChain4j API Key未配置，AI模块将使用降级模式");
+        if (primaryApiKey == null || primaryApiKey.isBlank()) {
+            log.warn("LangChain4j 主模型 API Key 未配置，AI 模块将使用降级模式");
             return null;
         }
+        log.info("初始化主对话模型: model={}, baseUrl={}", primaryModelName, primaryBaseUrl);
         return OpenAiChatModel.builder()
-                .baseUrl(baseUrl)
-                .apiKey(apiKey)
-                .modelName(modelName)
-                .timeout(timeout)
-                .temperature(0.3)
+                .baseUrl(primaryBaseUrl)
+                .apiKey(primaryApiKey)
+                .modelName(primaryModelName)
+                .timeout(primaryTimeout)
+                .temperature(primaryTemperature)
                 .build();
     }
 
     @Bean
     public StreamingChatLanguageModel streamingChatLanguageModel() {
-        if (apiKey == null || apiKey.isBlank()) {
-            log.warn("LangChain4j API Key未配置，流式AI模块将使用降级模式");
+        if (primaryApiKey == null || primaryApiKey.isBlank()) {
+            log.warn("LangChain4j 主模型 API Key 未配置，流式 AI 模块将使用降级模式");
             return null;
         }
         return OpenAiStreamingChatModel.builder()
-                .baseUrl(baseUrl)
-                .apiKey(apiKey)
-                .modelName(modelName)
-                .timeout(timeout)
-                .temperature(0.3)
+                .baseUrl(primaryBaseUrl)
+                .apiKey(primaryApiKey)
+                .modelName(primaryModelName)
+                .timeout(primaryTimeout)
+                .temperature(primaryTemperature)
                 .build();
     }
 
     @Bean
     public ChatLanguageModel backupChatLanguageModel() {
-        if (apiKey == null || apiKey.isBlank()) {
+        if (backupApiKey == null || backupApiKey.isBlank()) {
+            log.warn("LangChain4j 备用模型 API Key 未配置");
             return null;
         }
+        log.info("初始化备用对话模型: model={}, baseUrl={}", backupModelName, backupBaseUrl);
         return OpenAiChatModel.builder()
-                .baseUrl(baseUrl)
-                .apiKey(apiKey)
+                .baseUrl(backupBaseUrl)
+                .apiKey(backupApiKey)
                 .modelName(backupModelName)
-                .timeout(timeout)
-                .temperature(0.3)
+                .timeout(backupTimeout)
+                .temperature(backupTemperature)
                 .build();
     }
 
     @Bean
     public StreamingChatLanguageModel backupStreamingChatLanguageModel() {
-        if (apiKey == null || apiKey.isBlank()) {
+        if (backupApiKey == null || backupApiKey.isBlank()) {
             return null;
         }
         return OpenAiStreamingChatModel.builder()
-                .baseUrl(baseUrl)
-                .apiKey(apiKey)
+                .baseUrl(backupBaseUrl)
+                .apiKey(backupApiKey)
                 .modelName(backupModelName)
-                .timeout(timeout)
-                .temperature(0.3)
+                .timeout(backupTimeout)
+                .temperature(backupTemperature)
                 .build();
     }
 }

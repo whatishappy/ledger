@@ -20,6 +20,10 @@ Nginx 路由配置说明：
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 <title>Ledger · 3 秒记账，AI 懂你的每一笔</title>
 <meta name="description" content="开源个人记账本：自然语言记账 · 小票 OCR · 智能预算 · 财务周报 · 自托管 Docker 一键部署" />
+<meta name="theme-color" content="#4f46e5" />
+<meta name="apple-mobile-web-app-capable" content="yes" />
+<meta name="apple-mobile-web-app-status-bar-style" content="default" />
+<link rel="manifest" href="/static/manifest.json" />
 <script src="https://cdn.tailwindcss.com"></script>
 <link rel="stylesheet" href="css/style.css" />
 </head>
@@ -479,5 +483,16 @@ Nginx 路由配置说明：
 </footer>
 
 <script src="js/main.js"></script>
+<script>
+if ('serviceWorker' in navigator) {
+  window.addEventListener('load', function() {
+    navigator.serviceWorker.register('/static/sw.js').then(function(registration) {
+      console.log('ServiceWorker registration successful with scope: ', registration.scope);
+    }).catch(function(err) {
+      console.log('ServiceWorker registration failed: ', err);
+    });
+  });
+}
+</script>
 </body>
 </html>

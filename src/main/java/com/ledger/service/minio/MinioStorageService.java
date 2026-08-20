@@ -3,12 +3,14 @@ package com.ledger.service.minio;
 import com.ledger.config.minio.MinioProperties;
 import io.minio.GetPresignedObjectUrlArgs;
 import io.minio.MinioClient;
+import io.minio.PutObjectArgs;
 import io.minio.RemoveObjectArgs;
 import io.minio.http.Method;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
+import java.io.InputStream;
 import java.util.concurrent.TimeUnit;
 
 @Slf4j
@@ -54,6 +56,23 @@ public class MinioStorageService {
             log.info("MinIO删除对象成功: objectKey={}", objectKey);
         } catch (Exception e) {
             log.warn("MinIO删除对象失败: objectKey={}", objectKey, e);
+        }
+    }
+
+    public void uploadObject(String objectKey, InputStream inputStream, String contentType) {
+        try {
+            minioClient.putObject(
+                    PutObjectArgs.builder()
+                            .bucket(minioProperties.getBucketName())
+                            .object(objectKey)
+                            .stream(inputStream, -1, 10485760)
+                            .contentType(contentType != null ? contentType : "application/octet-stream")
+                            .build()
+            );
+            log.info("MinIO上传对象成功: objectKey={}", objectKey);
+        } catch (Exception e) {
+            log.error("MinIO上传对象失败: objectKey={}", objectKey, e);
+            throw new RuntimeException("上传文件到MinIO失败", e);
         }
     }
 }
