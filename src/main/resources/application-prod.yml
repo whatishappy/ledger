@@ -6,6 +6,9 @@ spring:
     url: jdbc:mysql://${MYSQL_HOST:192.168.10.101}:${MYSQL_PORT:3306}/${MYSQL_DATABASE:ledger}?useUnicode=true&characterEncoding=utf8&useSSL=false&serverTimezone=Asia/Shanghai&allowPublicKeyRetrieval=true
     username: ${MYSQL_USERNAME:root}
     password: ${MYSQL_PASSWORD:}
+  sql:
+    init:
+      mode: never
   data:
     redis:
       host: ${REDIS_HOST:192.168.10.101}
