@@ -61,9 +61,27 @@ services:
     networks:
       - ledger-net
 
+  # MinIO 对象存储
+  minio:
+    image: minio/minio:latest
+    container_name: ledger-minio
+    restart: unless-stopped
+    ports:
+      - "9000:9000"
+      - "9001:9001"
+    environment:
+      - MINIO_ROOT_USER=minioadmin
+      - MINIO_ROOT_PASSWORD=minioadmin
+    command: server /data --console-address ":9001"
+    volumes:
+      - minio-data:/data
+    networks:
+      - ledger-net
+
 volumes:
   prometheus-data:
   grafana-data:
+  minio-data:
 
 networks:
   ledger-net:

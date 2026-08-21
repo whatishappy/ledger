@@ -10,7 +10,7 @@ import org.springframework.scheduling.annotation.EnableScheduling;
  * 个人云端记账本启动类
  */
 @SpringBootApplication
-@MapperScan("com.ledger.modules.**.mapper")
+@MapperScan({"com.ledger.modules.**.mapper", "com.ledger.mapper"})
 @EnableAsync
 @EnableScheduling
 public class LedgerApplication {

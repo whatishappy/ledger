@@ -106,6 +106,128 @@ public class CacheService {
         }
     }
 
+    // ===== Calendar 日历热力图缓存 =====
+
+    public <T> T getCalendar(Long userId, String month, Class<T> clazz) {
+        try {
+            RBucket<T> bucket = redissonClient.getBucket(CacheConstants.buildCalendarKey(userId, month));
+            T data = bucket.get();
+            recordCacheHitOrMiss(data != null);
+            return data;
+        } catch (Exception e) {
+            log.warn("查询Calendar缓存失败: userId={}, month={}", userId, month, e);
+            return null;
+        }
+    }
+
+    public <T> void setCalendar(Long userId, String month, T data) {
+        try {
+            RBucket<T> bucket = redissonClient.getBucket(CacheConstants.buildCalendarKey(userId, month));
+            bucket.set(data, CacheConstants.CALENDAR_TTL, TimeUnit.MILLISECONDS);
+        } catch (Exception e) {
+            log.warn("写入Calendar缓存失败: userId={}, month={}", userId, month, e);
+        }
+    }
+
+    public void evictCalendar(Long userId, String month) {
+        try {
+            redissonClient.getBucket(CacheConstants.buildCalendarKey(userId, month)).delete();
+        } catch (Exception e) {
+            log.warn("删除Calendar缓存失败: userId={}, month={}", userId, month, e);
+        }
+    }
+
+    // ===== Tags 标签缓存 =====
+
+    public <T> T getTags(Long userId, Class<T> clazz) {
+        try {
+            RBucket<T> bucket = redissonClient.getBucket(CacheConstants.buildTagsKey(userId));
+            T data = bucket.get();
+            recordCacheHitOrMiss(data != null);
+            return data;
+        } catch (Exception e) {
+            log.warn("查询Tags缓存失败: userId={}", userId, e);
+            return null;
+        }
+    }
+
+    public <T> void setTags(Long userId, T data) {
+        try {
+            RBucket<T> bucket = redissonClient.getBucket(CacheConstants.buildTagsKey(userId));
+            bucket.set(data, CacheConstants.TAGS_TTL, TimeUnit.MILLISECONDS);
+        } catch (Exception e) {
+            log.warn("写入Tags缓存失败: userId={}", userId, e);
+        }
+    }
+
+    public void evictTags(Long userId) {
+        try {
+            redissonClient.getBucket(CacheConstants.buildTagsKey(userId)).delete();
+        } catch (Exception e) {
+            log.warn("删除Tags缓存失败: userId={}", userId, e);
+        }
+    }
+
+    // ===== Import 预览缓存 =====
+
+    public <T> T getImportPreview(Long userId, String token, Class<T> clazz) {
+        try {
+            RBucket<T> bucket = redissonClient.getBucket(CacheConstants.buildImportPreviewKey(userId, token));
+            return bucket.get();
+        } catch (Exception e) {
+            log.warn("查询Import预览缓存失败: userId={}, token={}", userId, token, e);
+            return null;
+        }
+    }
+
+    public <T> void setImportPreview(Long userId, String token, T data) {
+        try {
+            RBucket<T> bucket = redissonClient.getBucket(CacheConstants.buildImportPreviewKey(userId, token));
+            bucket.set(data, CacheConstants.IMPORT_PREVIEW_TTL, TimeUnit.MILLISECONDS);
+        } catch (Exception e) {
+            log.warn("写入Import预览缓存失败: userId={}, token={}", userId, token, e);
+        }
+    }
+
+    public void evictImportPreview(Long userId, String token) {
+        try {
+            redissonClient.getBucket(CacheConstants.buildImportPreviewKey(userId, token)).delete();
+        } catch (Exception e) {
+            log.warn("删除Import预览缓存失败: userId={}, token={}", userId, token, e);
+        }
+    }
+
+    // ===== Template 模板缓存 =====
+
+    public <T> T getTemplates(Long userId, Class<T> clazz) {
+        try {
+            RBucket<T> bucket = redissonClient.getBucket(CacheConstants.buildTemplatesKey(userId));
+            T data = bucket.get();
+            recordCacheHitOrMiss(data != null);
+            return data;
+        } catch (Exception e) {
+            log.warn("查询Templates缓存失败: userId={}", userId, e);
+            return null;
+        }
+    }
+
+    public <T> void setTemplates(Long userId, T data) {
+        try {
+            RBucket<T> bucket = redissonClient.getBucket(CacheConstants.buildTemplatesKey(userId));
+            bucket.set(data, CacheConstants.TEMPLATES_TTL, TimeUnit.MILLISECONDS);
+        } catch (Exception e) {
+            log.warn("写入Templates缓存失败: userId={}", userId, e);
+        }
+    }
+
+    public void evictTemplates(Long userId) {
+        try {
+            redissonClient.getBucket(CacheConstants.buildTemplatesKey(userId)).delete();
+        } catch (Exception e) {
+            log.warn("删除Templates缓存失败: userId={}", userId, e);
+        }
+    }
+
     // ===== 用户信息缓存 =====
 
     public void evictUser(Long userId) {
@@ -117,13 +239,16 @@ public class CacheService {
     }
 
     /**
-     * 清除用户所有 dashboard 和 budget 缓存（注销时）
+     * 清除用户所有 dashboard、budget、calendar、tags、templates 缓存（注销时）
      */
     public void evictAllUserCaches(Long userId) {
         try {
             RKeys keys = redissonClient.getKeys();
             keys.deleteByPattern("dashboard:" + userId + ":*");
             keys.deleteByPattern("budget:" + userId + ":*");
+            keys.deleteByPattern("calendar:" + userId + ":*");
+            keys.delete(CacheConstants.buildTagsKey(userId));
+            keys.delete(CacheConstants.buildTemplatesKey(userId));
             keys.delete(CacheConstants.buildUserKey(userId));
         } catch (Exception e) {
             log.warn("清除用户所有缓存失败: userId={}", userId, e);

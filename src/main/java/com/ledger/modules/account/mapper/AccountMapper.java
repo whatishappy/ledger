@@ -2,6 +2,7 @@ package com.ledger.modules.account.mapper;
 
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
+import com.ledger.dto.calendar.CalendarDayAggregate;
 import com.ledger.modules.account.entity.Account;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
@@ -85,4 +86,11 @@ public interface AccountMapper extends BaseMapper<Account> {
                             @Param("category") String category,
                             @Param("startDate") LocalDate startDate,
                             @Param("endDate") LocalDate endDate);
+
+    /**
+     * 按日汇总收支金额和笔数（用于日历热力图）
+     */
+    List<CalendarDayAggregate> getDailyAggregates(@Param("userId") Long userId,
+                                                  @Param("startDate") LocalDate startDate,
+                                                  @Param("endDate") LocalDate endDate);
 }

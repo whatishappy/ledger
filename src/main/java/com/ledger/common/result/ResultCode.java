@@ -36,7 +36,33 @@ public enum ResultCode {
 
     // 导出模块 4xxx
     EXPORT_TOO_MANY_ROWS(4001, "导出数据量超过上限"),
-    EXPORT_TASK_NOT_FOUND(4002, "导出任务不存在或已过期");
+    EXPORT_TASK_NOT_FOUND(4002, "导出任务不存在或已过期"),
+
+    // 标签模块 5xxx
+    TAG_NAME_ALREADY_EXISTS(5001, "标签名已存在"),
+    TAG_NOT_FOUND(5002, "标签不存在或无权访问"),
+    TAG_LIMIT_EXCEEDED(5003, "标签数量超过上限（每用户最多50个）"),
+
+    // 模板模块 51xx
+    TEMPLATE_NAME_EXISTS(5101, "模板名已存在"),
+    TEMPLATE_NOT_FOUND(5102, "模板不存在或无权访问"),
+
+    // 导入模块 52xx
+    IMPORT_FORMAT_UNSUPPORTED(5201, "账单文件格式不支持"),
+    IMPORT_PARSE_FAILED(5202, "账单解析失败"),
+    IMPORT_LIMIT_EXCEEDED(5203, "账单导入记录数超过上限（单次最多1000条）"),
+
+    // 定时交易 53xx
+    CRON_INVALID(5301, "定时交易cron表达式无效"),
+    SCHEDULED_LIMIT_EXCEEDED(5302, "定时交易数量超过上限（每用户最多20个）"),
+
+    // AI模块 6xxx
+    AI_CHAT_FAILED(6001, "AI对话失败（模型超时或异常）"),
+    AI_QUOTA_EXHAUSTED(6002, "AI配额已用尽（当日50次或10万Token）"),
+    AI_CONTENT_VIOLATION(6003, "AI请求内容违规"),
+    AI_OCR_FAILED(6004, "OCR识别失败"),
+    AI_REPORT_FAILED(6005, "报告生成失败"),
+    AI_OPERATION_BLACKLISTED(6006, "AI操作在黑名单中，禁止执行");
 
     private final int code;
     private final String message;

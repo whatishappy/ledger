@@ -10,7 +10,7 @@ import org.springframework.transaction.event.TransactionalEventListener;
 
 /**
  * 账目变更事件监听器
- * 在事务提交后清除对应月份的 dashboard 和 budget 缓存
+ * 在事务提交后清除对应月份的 dashboard、budget 和 calendar 缓存
  * 跨月修改时发布两个事件，分别清除新旧月份缓存
  */
 @Slf4j
@@ -27,5 +27,6 @@ public class AccountChangeListener {
         log.info("事务提交后清除缓存: userId={}, month={}", userId, month);
         cacheService.evictDashboard(userId, month);
         cacheService.evictBudget(userId, month);
+        cacheService.evictCalendar(userId, month);
     }
 }

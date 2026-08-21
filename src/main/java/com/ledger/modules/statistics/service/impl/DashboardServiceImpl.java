@@ -8,6 +8,7 @@ import com.ledger.modules.budget.dto.BudgetVO;
 import com.ledger.modules.budget.service.IBudgetService;
 import com.ledger.modules.statistics.dto.CategoryStatVO;
 import com.ledger.modules.statistics.dto.DashboardVO;
+import com.ledger.modules.statistics.dto.TrendCompareVO;
 import com.ledger.modules.statistics.dto.TrendVO;
 import com.ledger.modules.statistics.service.IDashboardService;
 import lombok.RequiredArgsConstructor;
@@ -221,5 +222,63 @@ public class DashboardServiceImpl implements IDashboardService {
             return ((java.sql.Date) value).toLocalDate();
         }
         return LocalDate.parse(value.toString());
+    }
+
+    @Override
+    public TrendCompareVO getYearOverYear(Long userId, String month) {
+        validateMonth(month);
+        YearMonth current = YearMonth.parse(month);
+        YearMonth lastYear = current.minusYears(1);
+        return compareMonths(userId, current, lastYear);
+    }
+
+    @Override
+    public TrendCompareVO getMonthOverMonth(Long userId, String month) {
+        validateMonth(month);
+        YearMonth current = YearMonth.parse(month);
+        YearMonth prev = current.minusMonths(1);
+        return compareMonths(userId, current, prev);
+    }
+
+    @Override
+    public List<TrendCompareVO> getMultiMonthTrend(Long userId, String startMonth, String endMonth) {
+        validateMonth(startMonth);
+        validateMonth(endMonth);
+        YearMonth start = YearMonth.parse(startMonth);
+        YearMonth end = YearMonth.parse(endMonth);
+        List<TrendCompareVO> result = new ArrayList<>();
+        YearMonth cursor = start;
+        while (!cursor.isAfter(end)) {
+            LocalDate monthStart = cursor.atDay(1);
+            LocalDate monthEnd = cursor.atEndOfMonth();
+            BigDecimal income = accountMapper.sumAmountByTypeAndDateRange(userId, 1, monthStart, monthEnd);
+            BigDecimal expense = accountMapper.sumAmountByTypeAndDateRange(userId, 0, monthStart, monthEnd);
+            result.add(TrendCompareVO.of(cursor.toString(),
+                    income != null ? income : BigDecimal.ZERO,
+                    expense != null ? expense : BigDecimal.ZERO,
+                    BigDecimal.ZERO, BigDecimal.ZERO));
+            cursor = cursor.plusMonths(1);
+        }
+        return result;
+    }
+
+    private TrendCompareVO compareMonths(Long userId, YearMonth current, YearMonth previous) {
+        LocalDate curStart = current.atDay(1);
+        LocalDate curEnd = current.atEndOfMonth();
+        LocalDate prevStart = previous.atDay(1);
+        LocalDate prevEnd = previous.atEndOfMonth();
+
+        BigDecimal curIncome = accountMapper.sumAmountByTypeAndDateRange(userId, 1, curStart, curEnd);
+        BigDecimal curExpense = accountMapper.sumAmountByTypeAndDateRange(userId, 0, curStart, curEnd);
+        BigDecimal prevIncome = accountMapper.sumAmountByTypeAndDateRange(userId, 1, prevStart, prevEnd);
+        BigDecimal prevExpense = accountMapper.sumAmountByTypeAndDateRange(userId, 0, prevStart, prevEnd);
+
+        return TrendCompareVO.of(
+                current.toString(),
+                curIncome != null ? curIncome : BigDecimal.ZERO,
+                curExpense != null ? curExpense : BigDecimal.ZERO,
+                prevIncome != null ? prevIncome : BigDecimal.ZERO,
+                prevExpense != null ? prevExpense : BigDecimal.ZERO
+        );
     }
 }

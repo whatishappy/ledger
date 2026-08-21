@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ledger.modules.account.mapper.AccountMapper">
+
+    <resultMap id="CalendarDayAggregateMap" type="com.ledger.dto.calendar.CalendarDayAggregate">
+        <result property="date" column="date" javaType="java.time.LocalDate"/>
+        <result property="income" column="income" javaType="java.math.BigDecimal"/>
+        <result property="expense" column="expense" javaType="java.math.BigDecimal"/>
+        <result property="count" column="count" javaType="java.lang.Integer"/>
+    </resultMap>
+
+    <select id="getDailyAggregates" resultMap="CalendarDayAggregateMap">
+        SELECT DATE(account_date) AS date,
+               COALESCE(SUM(CASE WHEN type = 1 THEN amount ELSE 0 END), 0) AS income,
+               COALESCE(SUM(CASE WHEN type = 0 THEN amount ELSE 0 END), 0) AS expense,
+               COUNT(*) AS count
+        FROM account_book
+        WHERE user_id = #{userId}
+          AND account_date BETWEEN #{startDate} AND #{endDate}
+          AND is_deleted = 0
+        GROUP BY DATE(account_date)
+        ORDER BY date
+    </select>
+
+</mapper>
