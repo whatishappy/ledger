@@ -144,6 +144,23 @@ export interface DashboardVO {
   budgetProgress: BudgetVO[]
 }
 
+/** 同比/环比对比数据（V2.1 新增） */
+export interface TrendCompareVO {
+  /** YYYY-MM */
+  period: string
+  income: number
+  expense: number
+  balance: number
+  /** 较对比期收入变动绝对值 */
+  incomeChange: number
+  /** 较对比期支出变动绝对值 */
+  expenseChange: number
+  /** 收入变动百分比（保留 2 位小数） */
+  incomeChangeRate: number
+  /** 支出变动百分比（保留 2 位小数） */
+  expenseChangeRate: number
+}
+
 /* ==================== 导出模块 ==================== */
 
 export interface ExportRequest {
@@ -175,4 +192,261 @@ export interface ExportTaskVO {
   errorMsg?: string
   createTime: string
   expireTime?: string
+}
+
+/* ==================== 标签模块（V2.1 新增，TG-01~TG-07） ==================== */
+
+/** 标签类型：0-全部 1-支出 2-收入 */
+export const TagTypeCode = {
+  ALL: 0,
+  EXPENSE: 1,
+  INCOME: 2,
+} as const
+
+export interface TagCreateRequest {
+  name: string
+  /** 十六进制颜色，如 #FF5733 */
+  color: string
+  /** 0-全部 / 1-支出 / 2-收入，默认 0 */
+  type?: number
+  sort?: number
+}
+
+export interface TagUpdateRequest {
+  name?: string
+  color?: string
+  type?: number
+  sort?: number
+}
+
+export interface TagVO {
+  id: number
+  userId: number
+  name: string
+  color: string
+  type: number
+  sort: number
+  createdAt: string
+  /** 标签关联账目金额合计（统计时返回） */
+  totalAmount?: number
+}
+
+export interface TagStatItem {
+  tagId: number
+  tagName: string
+  color: string
+  totalAmount: number
+  transactionCount: number
+  percentage: number
+}
+
+export interface TagStatisticsVO {
+  /** YYYY-MM */
+  month: string
+  items: TagStatItem[]
+}
+
+/* ==================== 交易模板模块（V2.1 新增，TP-01~TP-05） ==================== */
+
+export interface TemplateCreateRequest {
+  name: string
+  type: number
+  category?: string
+  amount?: number
+  remark?: string
+  tags?: number[]
+}
+
+export interface TemplateUpdateRequest {
+  name?: string
+  type?: number
+  category?: string
+  amount?: number
+  remark?: string
+  tags?: number[]
+}
+
+/** 应用模板时可选覆盖字段 */
+export interface TemplateApplyRequest {
+  amount?: number
+  remark?: string
+  /** YYYY-MM-DD */
+  dateAt?: string
+  bookId?: number
+}
+
+export interface TemplateVO {
+  id: number
+  userId: number
+  name: string
+  type: number
+  category?: string
+  amount?: number
+  remark?: string
+  tags?: number[]
+  createdAt: string
+  updatedAt: string
+  /** 应用示例（预览） */
+  applyExample?: AccountVO
+}
+
+/* ==================== 交易图片附件模块（V2.1 新增） ==================== */
+
+/** 图片类型：1-小票 2-发票 3-截图 等 */
+export interface TransactionImageVO {
+  id: number
+  accountId: number
+  imageUrl: string
+  imageType: number
+  createdAt: string
+}
+
+/* ==================== 定时交易模块（V2.1 新增） ==================== */
+
+export interface ScheduledTransaction {
+  id?: number
+  userId?: number
+  /** Cron 表达式 */
+  cron: string
+  type: number
+  category: string
+  amount: number
+  remark?: string
+  /** YYYY-MM-DDTHH:mm:ss */
+  nextRunAt?: string
+  /** 0-停用 1-启用 */
+  enabled?: number
+  createdAt?: string
+  updatedAt?: string
+}
+
+/* ==================== 日历统计模块（V2.1 新增，CA-01） ==================== */
+
+export interface CalendarDayVO {
+  /** YYYY-MM-DD */
+  date: string
+  income: number
+  /** 当日支出合计（正数） */
+  expense: number
+  count: number
+  /** 热力等级 0-4（0=无 1=低 2=中 3=高 4=极高） */
+  level: number
+}
+
+export interface CalendarHeatmapVO {
+  /** YYYY-MM */
+  month: string
+  totalIncome: number
+  totalExpense: number
+  totalCount: number
+  maxDailyExpense: number
+  days: CalendarDayVO[]
+}
+
+/* ==================== 账单导入模块（V2.1 新增，IM-01~IM-03） ==================== */
+
+export interface ImportedBillRowVO {
+  date: string
+  counterparty?: string
+  amount: number
+  type?: string
+  source?: string
+  /** 预映射分类 */
+  preCategory?: string
+}
+
+export interface BillImportPreviewVO {
+  /** 预览令牌，确认导入时回传 */
+  token: string
+  count: number
+  amountSum: number
+  conflicts: number
+  sampleRows: ImportedBillRowVO[]
+}
+
+export interface BillImportConfirmRequest {
+  token: string
+  /** 手动分类映射覆盖：preCategory -> 系统分类 */
+  categoryOverrides?: Record<string, string>
+  /** 是否跳过冲突项，默认 true */
+  skipConflicts?: boolean
+}
+
+export interface BillImportResultVO {
+  imported: number
+  skipped: number
+  amountSumIncome: number
+  amountSumExpense: number
+}
+
+/* ==================== AI 智能助手模块（V2.1 新增，AI-01~AI-08） ==================== */
+
+export interface AiAttachment {
+  fileUrl: string
+  fileName: string
+  fileSize: number
+  mimeType: string
+}
+
+export interface AiChatRequest {
+  sessionId?: number
+  /** 聊天内容（≤500 字） */
+  content: string
+  attachments?: AiAttachment[]
+}
+
+/** AI 小票 OCR 识别明细项 */
+export interface ReceiptItem {
+  name: string
+  price: number
+  quantity?: number
+}
+
+export interface AiOcrResult {
+  merchant?: string
+  /** YYYY-MM-DD */
+  date?: string
+  total?: number
+  paymentMethod?: string
+  category?: string
+  items?: ReceiptItem[]
+  imageUrl?: string
+}
+
+export interface AiChatSessionVO {
+  id: number
+  userId: number
+  title: string
+  lastMessageAt: string
+  messageCount: number
+  createdAt: string
+}
+
+export interface AiChatMessageVO {
+  id: number
+  sessionId: number
+  /** user / assistant / tool 等 */
+  role: string
+  content: string
+  tokens: number
+  createdAt: string
+}
+
+export interface AiQuotaVO {
+  chatUsed: number
+  chatTotal: number
+  tokenUsed: number
+  tokenTotal: number
+  chatPercent: number
+  tokenPercent: number
+}
+
+/** SSE 流式帧（utils/sse.ts 解析用） */
+export interface AiStreamFrame {
+  type: 'chunk' | 'tool_call' | 'done' | 'error'
+  content?: string
+  tool?: string
+  result?: unknown
+  errorCode?: number
+  errorMessage?: string
 }

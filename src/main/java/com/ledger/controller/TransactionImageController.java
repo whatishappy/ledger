@@ -1,5 +1,6 @@
 package com.ledger.controller;
 
+import com.ledger.common.context.UserContext;
 import com.ledger.common.result.Result;
 import com.ledger.entity.TransactionImage;
 import com.ledger.service.TransactionImageService;
@@ -22,10 +23,10 @@ public class TransactionImageController {
     @PostMapping("/upload")
     @Operation(summary = "上传交易图片")
     public Result<TransactionImage> upload(
-            @RequestHeader("X-User-Id") Long userId,
             @RequestParam Long accountId,
             @RequestParam("file") MultipartFile file,
             @RequestParam(required = false, defaultValue = "1") Integer imageType) {
+        Long userId = UserContext.requireUserId();
         TransactionImage image = imageService.uploadImage(userId, accountId, file, imageType);
         return Result.success(image);
     }

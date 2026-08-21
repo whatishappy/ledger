@@ -1,5 +1,6 @@
 package com.ledger.modules.user.dto;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -16,12 +17,7 @@ public class UserInfoVO {
     private String username;
     private String nickname;
     private Integer status;
-    private String avatarUrl;
 
-    public UserInfoVO(Long id, String username, String nickname, Integer status) {
-        this.id = id;
-        this.username = username;
-        this.nickname = nickname;
-        this.status = status;
-    }
+    @JsonInclude(JsonInclude.Include.ALWAYS)
+    private String avatarUrl;
 }

@@ -30,7 +30,7 @@ public class CacheService {
             RBucket<Long> bucket = redissonClient.getBucket(CacheConstants.buildIdempotentKey(idempotentKey));
             return bucket.get();
         } catch (Exception e) {
-            log.warn("查询幂等缓存失败: key={}", idempotentKey, e);
+            log.error("查询幂等缓存失败: key={}", idempotentKey, e);
             return null;
         }
     }
@@ -40,7 +40,7 @@ public class CacheService {
             RBucket<Long> bucket = redissonClient.getBucket(CacheConstants.buildIdempotentKey(idempotentKey));
             bucket.set(accountId, CacheConstants.IDEMPOTENT_TTL, TimeUnit.MILLISECONDS);
         } catch (Exception e) {
-            log.warn("写入幂等缓存失败: key={}", idempotentKey, e);
+            log.error("写入幂等缓存失败: key={}", idempotentKey, e);
         }
     }
 
@@ -53,7 +53,7 @@ public class CacheService {
             recordCacheHitOrMiss(data != null);
             return data;
         } catch (Exception e) {
-            log.warn("查询Dashboard缓存失败: userId={}, month={}", userId, month, e);
+            log.error("查询Dashboard缓存失败: userId={}, month={}", userId, month, e);
             return null;
         }
     }
@@ -63,7 +63,7 @@ public class CacheService {
             RBucket<T> bucket = redissonClient.getBucket(CacheConstants.buildDashboardKey(userId, month));
             bucket.set(data, CacheConstants.DASHBOARD_TTL, TimeUnit.MILLISECONDS);
         } catch (Exception e) {
-            log.warn("写入Dashboard缓存失败: userId={}, month={}", userId, month, e);
+            log.error("写入Dashboard缓存失败: userId={}, month={}", userId, month, e);
         }
     }
 
@@ -71,7 +71,7 @@ public class CacheService {
         try {
             redissonClient.getBucket(CacheConstants.buildDashboardKey(userId, month)).delete();
         } catch (Exception e) {
-            log.warn("删除Dashboard缓存失败: userId={}, month={}", userId, month, e);
+            log.error("删除Dashboard缓存失败: userId={}, month={}", userId, month, e);
         }
     }
 
@@ -84,7 +84,7 @@ public class CacheService {
             recordCacheHitOrMiss(data != null);
             return data;
         } catch (Exception e) {
-            log.warn("查询Budget缓存失败: userId={}, month={}", userId, month, e);
+            log.error("查询Budget缓存失败: userId={}, month={}", userId, month, e);
             return null;
         }
     }
@@ -94,7 +94,7 @@ public class CacheService {
             RBucket<T> bucket = redissonClient.getBucket(CacheConstants.buildBudgetKey(userId, month));
             bucket.set(data, CacheConstants.BUDGET_TTL, TimeUnit.MILLISECONDS);
         } catch (Exception e) {
-            log.warn("写入Budget缓存失败: userId={}, month={}", userId, month, e);
+            log.error("写入Budget缓存失败: userId={}, month={}", userId, month, e);
         }
     }
 
@@ -102,7 +102,7 @@ public class CacheService {
         try {
             redissonClient.getBucket(CacheConstants.buildBudgetKey(userId, month)).delete();
         } catch (Exception e) {
-            log.warn("删除Budget缓存失败: userId={}, month={}", userId, month, e);
+            log.error("删除Budget缓存失败: userId={}, month={}", userId, month, e);
         }
     }
 
@@ -115,7 +115,7 @@ public class CacheService {
             recordCacheHitOrMiss(data != null);
             return data;
         } catch (Exception e) {
-            log.warn("查询Calendar缓存失败: userId={}, month={}", userId, month, e);
+            log.error("查询Calendar缓存失败: userId={}, month={}", userId, month, e);
             return null;
         }
     }
@@ -125,7 +125,7 @@ public class CacheService {
             RBucket<T> bucket = redissonClient.getBucket(CacheConstants.buildCalendarKey(userId, month));
             bucket.set(data, CacheConstants.CALENDAR_TTL, TimeUnit.MILLISECONDS);
         } catch (Exception e) {
-            log.warn("写入Calendar缓存失败: userId={}, month={}", userId, month, e);
+            log.error("写入Calendar缓存失败: userId={}, month={}", userId, month, e);
         }
     }
 
@@ -133,7 +133,7 @@ public class CacheService {
         try {
             redissonClient.getBucket(CacheConstants.buildCalendarKey(userId, month)).delete();
         } catch (Exception e) {
-            log.warn("删除Calendar缓存失败: userId={}, month={}", userId, month, e);
+            log.error("删除Calendar缓存失败: userId={}, month={}", userId, month, e);
         }
     }
 
@@ -146,7 +146,7 @@ public class CacheService {
             recordCacheHitOrMiss(data != null);
             return data;
         } catch (Exception e) {
-            log.warn("查询Tags缓存失败: userId={}", userId, e);
+            log.error("查询Tags缓存失败: userId={}", userId, e);
             return null;
         }
     }
@@ -156,7 +156,7 @@ public class CacheService {
             RBucket<T> bucket = redissonClient.getBucket(CacheConstants.buildTagsKey(userId));
             bucket.set(data, CacheConstants.TAGS_TTL, TimeUnit.MILLISECONDS);
         } catch (Exception e) {
-            log.warn("写入Tags缓存失败: userId={}", userId, e);
+            log.error("写入Tags缓存失败: userId={}", userId, e);
         }
     }
 
@@ -164,7 +164,7 @@ public class CacheService {
         try {
             redissonClient.getBucket(CacheConstants.buildTagsKey(userId)).delete();
         } catch (Exception e) {
-            log.warn("删除Tags缓存失败: userId={}", userId, e);
+            log.error("删除Tags缓存失败: userId={}", userId, e);
         }
     }
 
@@ -175,7 +175,7 @@ public class CacheService {
             RBucket<T> bucket = redissonClient.getBucket(CacheConstants.buildImportPreviewKey(userId, token));
             return bucket.get();
         } catch (Exception e) {
-            log.warn("查询Import预览缓存失败: userId={}, token={}", userId, token, e);
+            log.error("查询Import预览缓存失败: userId={}, token={}", userId, token, e);
             return null;
         }
     }
@@ -185,7 +185,7 @@ public class CacheService {
             RBucket<T> bucket = redissonClient.getBucket(CacheConstants.buildImportPreviewKey(userId, token));
             bucket.set(data, CacheConstants.IMPORT_PREVIEW_TTL, TimeUnit.MILLISECONDS);
         } catch (Exception e) {
-            log.warn("写入Import预览缓存失败: userId={}, token={}", userId, token, e);
+            log.error("写入Import预览缓存失败: userId={}, token={}", userId, token, e);
         }
     }
 
@@ -193,7 +193,7 @@ public class CacheService {
         try {
             redissonClient.getBucket(CacheConstants.buildImportPreviewKey(userId, token)).delete();
         } catch (Exception e) {
-            log.warn("删除Import预览缓存失败: userId={}, token={}", userId, token, e);
+            log.error("删除Import预览缓存失败: userId={}, token={}", userId, token, e);
         }
     }
 
@@ -206,7 +206,7 @@ public class CacheService {
             recordCacheHitOrMiss(data != null);
             return data;
         } catch (Exception e) {
-            log.warn("查询Templates缓存失败: userId={}", userId, e);
+            log.error("查询Templates缓存失败: userId={}", userId, e);
             return null;
         }
     }
@@ -216,7 +216,7 @@ public class CacheService {
             RBucket<T> bucket = redissonClient.getBucket(CacheConstants.buildTemplatesKey(userId));
             bucket.set(data, CacheConstants.TEMPLATES_TTL, TimeUnit.MILLISECONDS);
         } catch (Exception e) {
-            log.warn("写入Templates缓存失败: userId={}", userId, e);
+            log.error("写入Templates缓存失败: userId={}", userId, e);
         }
     }
 
@@ -224,7 +224,7 @@ public class CacheService {
         try {
             redissonClient.getBucket(CacheConstants.buildTemplatesKey(userId)).delete();
         } catch (Exception e) {
-            log.warn("删除Templates缓存失败: userId={}", userId, e);
+            log.error("删除Templates缓存失败: userId={}", userId, e);
         }
     }
 
@@ -234,7 +234,7 @@ public class CacheService {
         try {
             redissonClient.getBucket(CacheConstants.buildUserKey(userId)).delete();
         } catch (Exception e) {
-            log.warn("删除用户缓存失败: userId={}", userId, e);
+            log.error("删除用户缓存失败: userId={}", userId, e);
         }
     }
 
@@ -251,7 +251,7 @@ public class CacheService {
             keys.delete(CacheConstants.buildTemplatesKey(userId));
             keys.delete(CacheConstants.buildUserKey(userId));
         } catch (Exception e) {
-            log.warn("清除用户所有缓存失败: userId={}", userId, e);
+            log.error("清除用户所有缓存失败: userId={}", userId, e);
         }
     }
 

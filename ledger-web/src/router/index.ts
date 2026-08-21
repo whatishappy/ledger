@@ -39,6 +39,24 @@ const routes: RouteRecordRaw[] = [
         component: () => import('@/views/BudgetView.vue'),
         meta: { title: '预算管理', icon: 'Wallet' },
       },
+      {
+        path: 'calendar',
+        name: 'Calendar',
+        component: () => import('@/views/CalendarView.vue'),
+        meta: { title: '日历热力图', icon: 'Calendar' },
+      },
+      {
+        path: 'bill/import',
+        name: 'BillImport',
+        component: () => import('@/views/bill/BillImportView.vue'),
+        meta: { title: '账单导入', icon: 'UploadFilled' },
+      },
+      {
+        path: 'scheduled',
+        name: 'Scheduled',
+        component: () => import('@/views/scheduled/ScheduledView.vue'),
+        meta: { title: '定时交易', icon: 'AlarmClock' },
+      },
     ],
   },
   {
