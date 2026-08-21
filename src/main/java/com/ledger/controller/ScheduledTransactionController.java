@@ -1,5 +1,6 @@
 package com.ledger.controller;
 
+import com.ledger.common.context.UserContext;
 import com.ledger.common.result.Result;
 import com.ledger.entity.ScheduledTransaction;
 import com.ledger.service.ScheduledTransactionService;
@@ -21,15 +22,16 @@ public class ScheduledTransactionController {
     @PostMapping
     @Operation(summary = "创建定时交易")
     public Result<ScheduledTransaction> create(
-            @RequestHeader("X-User-Id") Long userId,
             @RequestBody ScheduledTransaction transaction) {
+        Long userId = UserContext.requireUserId();
         transaction.setUserId(userId);
         return Result.success(scheduledService.create(transaction));
     }
 
     @GetMapping
     @Operation(summary = "查询当前用户的定时交易列表")
-    public Result<List<ScheduledTransaction>> list(@RequestHeader("X-User-Id") Long userId) {
+    public Result<List<ScheduledTransaction>> list() {
+        Long userId = UserContext.requireUserId();
         return Result.success(scheduledService.listByUserId(userId));
     }
 

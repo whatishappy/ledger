@@ -1,5 +1,6 @@
 package com.ledger.modules.budget.dto;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 
@@ -40,5 +41,6 @@ public class BudgetVO {
     /**
      * 是否超支（进度超过100%）
      */
+    @JsonInclude(JsonInclude.Include.ALWAYS)
     private Boolean isOverBudget;
 }

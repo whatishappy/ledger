@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { onMounted, reactive, ref } from 'vue'
+import { useRoute } from 'vue-router'
 import { ElMessage } from 'element-plus'
 import { ArrowDown, Download, Plus, Refresh, Search } from '@element-plus/icons-vue'
 import * as accountApi from '@/api/account'
@@ -9,6 +10,7 @@ import { getCategoryIcon, formatSignedMoney, typeLabel } from '@/utils/format'
 import AccountEditorDialog from '@/components/AccountEditorDialog.vue'
 import ExportDialog from '@/components/ExportDialog.vue'
 
+const route = useRoute()
 const loading = ref(false)
 const records = ref<AccountVO[]>([])
 const total = ref(0)
@@ -40,6 +42,14 @@ async function loadData() {
     total.value = page.total
   } finally {
     loading.value = false
+  }
+}
+
+/** 支持从日历热力图等页面带 ?date=YYYY-MM-DD 跳转，自动设置单日筛选 */
+function applyDateQuery() {
+  const date = route.query.date
+  if (typeof date === 'string' && /^\d{4}-\d{2}-\d{2}$/.test(date)) {
+    dateRange.value = [date, date]
   }
 }
 
@@ -105,7 +115,10 @@ function formatTime(t: string): string {
   return t.slice(0, 16).replace('T', ' ')
 }
 
-onMounted(loadData)
+onMounted(() => {
+  applyDateQuery()
+  loadData()
+})
 </script>
 
 <template>

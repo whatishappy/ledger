@@ -2,17 +2,33 @@
 import { computed, onBeforeUnmount, onMounted, ref } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { ElMessage, ElMessageBox } from 'element-plus'
-import { ArrowDown, DataLine, Expand, Fold, Moon, Notebook, Sunny, Wallet } from '@element-plus/icons-vue'
+import {
+  AlarmClock,
+  ArrowDown,
+  Calendar,
+  ChatDotRound,
+  DataLine,
+  Expand,
+  Fold,
+  Moon,
+  Notebook,
+  Sunny,
+  UploadFilled,
+  Wallet,
+} from '@element-plus/icons-vue'
 import * as userApi from '@/api/user'
 import { useUserStore } from '@/stores/user'
 import { useAppStore } from '@/stores/app'
+import { useAiStore } from '@/stores/ai'
 import ModifyPasswordDialog from '@/components/ModifyPasswordDialog.vue'
 import ConfirmPasswordDialog from '@/components/ConfirmPasswordDialog.vue'
+import AiChatPanel from '@/components/AiChatPanel.vue'
 
 const route = useRoute()
 const router = useRouter()
 const userStore = useUserStore()
 const appStore = useAppStore()
+const aiStore = useAiStore()
 
 const modifyVisible = ref(false)
 const deleteVisible = ref(false)
@@ -21,6 +37,9 @@ const menuItems = [
   { path: '/dashboard', title: '仪表盘', icon: DataLine },
   { path: '/account', title: '账目管理', icon: Notebook },
   { path: '/budget', title: '预算管理', icon: Wallet },
+  { path: '/calendar', title: '日历热力图', icon: Calendar },
+  { path: '/bill/import', title: '账单导入', icon: UploadFilled },
+  { path: '/scheduled', title: '定时交易', icon: AlarmClock },
 ]
 
 /** 顶栏面包屑：仪表盘 / 当前页 */
@@ -146,6 +165,17 @@ async function handleLogout() {
         </div>
 
         <div class="header-right">
+          <!-- AI 助手入口 -->
+          <button
+            type="button"
+            class="ai-entry clickable"
+            title="AI 助手"
+            aria-label="打开 AI 助手"
+            @click="aiStore.openDrawer()"
+          >
+            <el-icon :size="20"><ChatDotRound /></el-icon>
+          </button>
+
           <!-- 明暗切换 -->
           <div class="theme-switch" title="切换明暗主题">
             <el-icon class="theme-icon"><Sunny /></el-icon>
@@ -190,6 +220,7 @@ async function handleLogout() {
 
   <ModifyPasswordDialog v-model="modifyVisible" />
   <ConfirmPasswordDialog v-model="deleteVisible" />
+  <AiChatPanel />
 </template>
 
 <style scoped lang="scss">
@@ -304,11 +335,39 @@ async function handleLogout() {
   color: var(--el-text-color-secondary);
 }
 
+.ai-entry {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  padding: 0;
+  border: 1px solid var(--el-border-color);
+  border-radius: 50%;
+  background: linear-gradient(135deg, #1e40af, #3b82f6);
+  color: #fff;
+  cursor: pointer;
+  transition:
+    transform 0.2s ease,
+    box-shadow 0.2s ease;
+}
+.ai-entry:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(30, 64, 175, 0.3);
+}
+.ai-entry:focus-visible {
+  outline: 2px solid var(--el-color-primary);
+  outline-offset: 2px;
+}
+
 .user-entry {
   display: flex;
   align-items: center;
   gap: 8px;
   outline: none;
+}
+.clickable {
+  cursor: pointer;
 }
 .user-avatar {
   background: linear-gradient(135deg, #1e40af, #3b82f6);

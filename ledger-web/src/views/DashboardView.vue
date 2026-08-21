@@ -7,7 +7,7 @@ import { CanvasRenderer } from 'echarts/renderers'
 import { Calendar, Money, TrendCharts, WalletFilled } from '@element-plus/icons-vue'
 import type { ECharts } from 'echarts/core'
 import * as statisticsApi from '@/api/statistics'
-import type { CategoryStatVO, DashboardVO, TrendVO } from '@/types/api'
+import type { CategoryStatVO, DashboardVO, TrendCompareVO, TrendVO } from '@/types/api'
 import { useAppStore } from '@/stores/app'
 import { currentMonth } from '@/utils/date'
 import { formatMoney } from '@/utils/format'
@@ -18,8 +18,11 @@ const CHART_PALETTE = ['#1E40AF', '#059669', '#3B82F6', '#EAB308', '#F59E0B', '#
 
 const appStore = useAppStore()
 const loading = ref(false)
+const loadError = ref(false)
 const month = ref(currentMonth())
 const dashboard = ref<DashboardVO | null>(null)
+const yoy = ref<TrendCompareVO | null>(null)
+const mom = ref<TrendCompareVO | null>(null)
 
 const trendRef = ref<HTMLDivElement>()
 const pieRef = ref<HTMLDivElement>()
@@ -39,10 +42,22 @@ const hasTrendData = computed(() => (dashboard.value?.trend.length ?? 0) > 0)
 
 async function loadDashboard() {
   loading.value = true
+  loadError.value = false
   try {
     dashboard.value = await statisticsApi.getDashboard(month.value)
     await nextTick()
     renderCharts()
+    // 同比/环比并行加载（失败不阻塞主仪表盘）
+    Promise.allSettled([
+      statisticsApi.getYoY(month.value),
+      statisticsApi.getMoM(month.value),
+    ]).then(([y, m]) => {
+      if (y.status === 'fulfilled') yoy.value = y.value
+      if (m.status === 'fulfilled') mom.value = m.value
+    })
+  } catch {
+    loadError.value = true
+    dashboard.value = null
   } finally {
     loading.value = false
   }
@@ -190,8 +205,15 @@ onBeforeUnmount(() => {
       />
     </div>
 
+    <!-- 错误占位 -->
+    <el-result v-if="loadError" icon="warning" title="数据加载失败" sub-title="请检查后端服务和数据库连接后重试">
+      <template #extra>
+        <el-button type="primary" @click="loadDashboard">重新加载</el-button>
+      </template>
+    </el-result>
+
     <!-- 顶部 4 卡片 -->
-    <div class="stat-grid">
+    <div v-show="!loadError" class="stat-grid">
       <el-card shadow="never" class="stat-card">
         <div class="stat-icon income">
           <el-icon :size="22"><Money /></el-icon>
@@ -242,8 +264,39 @@ onBeforeUnmount(() => {
       </el-card>
     </div>
 
+    <!-- 同比/环比对比 -->
+    <div v-show="!loadError" class="compare-grid">
+      <el-card shadow="never" class="compare-card">
+        <div class="compare-head">
+          <span class="compare-title">同比（vs 去年同月）</span>
+          <el-tag v-if="yoy" size="small" :type="(yoy.expenseChangeRate ?? 0) > 0 ? 'danger' : 'success'">
+            {{ (yoy.expenseChangeRate ?? 0) > 0 ? '↑' : '↓' }}
+            {{ Math.abs(yoy.expenseChangeRate ?? 0).toFixed(1) }}%
+          </el-tag>
+        </div>
+        <div v-if="yoy" class="compare-detail">
+          本月支出 ¥{{ formatMoney(dashboard?.monthExpense) }} ｜ 去年同月 ¥{{ formatMoney(yoy.expense) }}
+        </div>
+        <div v-else class="compare-empty">暂无同比数据</div>
+      </el-card>
+
+      <el-card shadow="never" class="compare-card">
+        <div class="compare-head">
+          <span class="compare-title">环比（vs 上月）</span>
+          <el-tag v-if="mom" size="small" :type="(mom.expenseChangeRate ?? 0) > 0 ? 'danger' : 'success'">
+            {{ (mom.expenseChangeRate ?? 0) > 0 ? '↑' : '↓' }}
+            {{ Math.abs(mom.expenseChangeRate ?? 0).toFixed(1) }}%
+          </el-tag>
+        </div>
+        <div v-if="mom" class="compare-detail">
+          本月支出 ¥{{ formatMoney(dashboard?.monthExpense) }} ｜ 上月 ¥{{ formatMoney(mom.expense) }}
+        </div>
+        <div v-else class="compare-empty">暂无环比数据</div>
+      </el-card>
+    </div>
+
     <!-- 图表区 -->
-    <div class="chart-grid">
+    <div v-show="!loadError" class="chart-grid">
       <el-card shadow="never" class="chart-card">
         <template #header>
           <div class="card-head">
@@ -268,7 +321,7 @@ onBeforeUnmount(() => {
     </div>
 
     <!-- 预算进度列表 -->
-    <el-card shadow="never" class="budget-card">
+    <el-card v-show="!loadError" shadow="never" class="budget-card">
       <template #header>
         <div class="card-head">
           <el-icon><WalletFilled /></el-icon>
@@ -334,6 +387,36 @@ onBeforeUnmount(() => {
   align-items: center;
   gap: 14px;
   padding: 20px;
+}
+
+.compare-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 16px;
+}
+
+.compare-card {
+  border-radius: 12px;
+}
+.compare-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 8px;
+}
+.compare-title {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--el-text-color-primary);
+}
+.compare-detail {
+  font-size: 13px;
+  color: var(--el-text-color-regular);
+  line-height: 1.6;
+}
+.compare-empty {
+  font-size: 13px;
+  color: var(--el-text-color-placeholder);
 }
 
 .stat-icon {

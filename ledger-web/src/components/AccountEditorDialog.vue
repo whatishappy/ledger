@@ -3,10 +3,15 @@ import { reactive, ref, watch } from 'vue'
 import { ElMessage, ElMessageBox } from 'element-plus'
 import type { FormInstance, FormRules } from 'element-plus'
 import { AccountType, type AccountTypeValue } from '@/types/business'
-import type { AccountVO } from '@/types/api'
+import type { AccountVO, TemplateVO, TransactionImageVO } from '@/types/api'
 import * as accountApi from '@/api/account'
+import * as tagApi from '@/api/tag'
+import * as imageApi from '@/api/image'
 import AmountQuickPad from '@/components/AmountQuickPad.vue'
 import CategoryIconGrid from '@/components/CategoryIconGrid.vue'
+import TagSelector from '@/components/TagSelector.vue'
+import TemplatePicker from '@/components/TemplatePicker.vue'
+import ImageUploader from '@/components/ImageUploader.vue'
 import { today } from '@/utils/date'
 
 const visible = defineModel<boolean>({ default: false })
@@ -24,7 +29,10 @@ const form = reactive({
   accountDate: today(),
   remark: '',
   version: 0,
+  tagIds: [] as number[],
 })
+
+const images = ref<TransactionImageVO[]>([])
 
 const rules: FormRules = {
   amount: [{ required: true, message: '请输入金额', trigger: 'blur' }],
@@ -47,6 +55,8 @@ function initForm() {
     form.accountDate = props.account.accountDate
     form.remark = props.account.remark || ''
     form.version = props.account.version
+    form.tagIds = []
+    loadExistingImages(props.account.id)
   } else {
     isEdit.value = false
     form.type = AccountType.EXPENSE
@@ -55,8 +65,18 @@ function initForm() {
     form.accountDate = today()
     form.remark = ''
     form.version = 0
+    form.tagIds = []
+    images.value = []
   }
   formRef.value?.clearValidate()
+}
+
+async function loadExistingImages(accountId: number) {
+  try {
+    images.value = await imageApi.listImagesByAccount(accountId)
+  } catch {
+    images.value = []
+  }
 }
 
 watch(visible, (v) => {
@@ -68,6 +88,16 @@ function handleTypeChange(type: AccountTypeValue) {
   const allowed =
     type === AccountType.INCOME ? ['工资', '其他'] : ['餐饮', '交通', '购物', '娱乐', '其他']
   if (!allowed.includes(form.category)) form.category = ''
+}
+
+/** 应用模板：自动填充表单字段（不会覆盖已填金额/日期） */
+function applyTemplate(t: TemplateVO) {
+  if (t.type != null) form.type = (t.type === 1 ? AccountType.INCOME : AccountType.EXPENSE) as AccountTypeValue
+  if (t.category) form.category = t.category
+  if (t.amount != null) form.amount = t.amount
+  if (t.remark) form.remark = t.remark
+  if (t.tags?.length) form.tagIds = [...t.tags]
+  ElMessage.success(`已应用模板：${t.name}`)
 }
 
 async function handleSubmit() {
@@ -88,6 +118,7 @@ async function handleSubmit() {
 
   saving.value = true
   try {
+    let accountId: number
     if (isEdit.value && props.account) {
       // 跨月修改二次确认（§4.4）：重置新旧月份预算/仪表盘缓存
       const oldMonth = props.account.accountDate.slice(0, 7)
@@ -105,10 +136,19 @@ async function handleSubmit() {
       }
       // 乐观锁：version 随请求体回传，冲突时后端返回 2002
       await accountApi.updateAccount({ id: props.account.id, version: form.version, ...payload })
+      accountId = props.account.id
       ElMessage.success('修改成功')
     } else {
-      await accountApi.addAccount(payload)
+      accountId = await accountApi.addAccount(payload)
       ElMessage.success('记账成功')
+    }
+    // 关联标签（如有选择）— 失败不阻塞主流程
+    if (form.tagIds.length) {
+      try {
+        await tagApi.assignTagsToAccount(accountId, form.tagIds)
+      } catch {
+        // 标签关联失败不阻塞主流程
+      }
     }
     visible.value = false
     emit('saved')
@@ -127,6 +167,11 @@ async function handleSubmit() {
     destroy-on-close
   >
     <el-form ref="formRef" :model="form" :rules="rules" label-position="top">
+      <!-- 从模板选择 -->
+      <el-form-item v-if="!isEdit" label="从模板选择（可选）">
+        <TemplatePicker :type="form.type" placeholder="选择模板快速填充" @select="applyTemplate" />
+      </el-form-item>
+
       <!-- 收支类型切换 -->
       <el-radio-group v-model="form.type" class="type-switch" @change="handleTypeChange">
         <el-radio-button :value="AccountType.EXPENSE">支出</el-radio-button>
@@ -182,6 +227,16 @@ async function handleSubmit() {
           show-word-limit
           placeholder="备注（选填）"
         />
+      </el-form-item>
+
+      <!-- 标签 -->
+      <el-form-item label="标签">
+        <TagSelector v-model="form.tagIds" :type="form.type === AccountType.INCOME ? 2 : 1" placeholder="关联标签（可选）" />
+      </el-form-item>
+
+      <!-- 图片附件（仅编辑模式可上传，新建时显示提示） -->
+      <el-form-item label="图片附件">
+        <ImageUploader v-model="images" :account-id="isEdit ? props.account?.id : null" />
       </el-form-item>
     </el-form>
 
