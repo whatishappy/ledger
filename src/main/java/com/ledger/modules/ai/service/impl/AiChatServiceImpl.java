@@ -21,7 +21,9 @@ import com.ledger.modules.ai.vo.AiChatSessionVO;
 import com.ledger.modules.ai.vo.AiQuotaVO;
 import dev.langchain4j.data.message.AiMessage;
 import dev.langchain4j.data.message.ChatMessage;
+import dev.langchain4j.data.message.Content;
 import dev.langchain4j.data.message.SystemMessage;
+import dev.langchain4j.data.message.TextContent;
 import dev.langchain4j.data.message.UserMessage;
 import dev.langchain4j.model.chat.ChatLanguageModel;
 import lombok.RequiredArgsConstructor;
@@ -438,38 +440,67 @@ public class AiChatServiceImpl implements AiChatService {
     private String extractTextFromResult(Object result) throws Exception {
         if (result == null) return "";
         if (result instanceof String s) return s;
-        Method[] methods = result.getClass().getMethods();
-        for (Method m : methods) {
+        // langchain4j 1.x: ChatResponse.aiMessage(); 0.x: Response.content()
+        for (String accessor : new String[]{"aiMessage", "content", "getContent"}) {
             try {
-                if ("content".equals(m.getName()) && m.getParameterCount() == 0) {
-                    Object content = m.invoke(result);
-                    if (content != null) {
-                        Method[] cms = content.getClass().getMethods();
-                        for (Method cm : cms) {
-                            if ("text".equals(cm.getName()) && cm.getParameterCount() == 0) {
-                                Object txt = cm.invoke(content);
-                                if (txt != null) return txt.toString();
-                            }
-                        }
-                        return content.toString();
-                    }
-                }
+                Method m = result.getClass().getMethod(accessor);
+                Object msg = m.invoke(result);
+                String text = extractMessageText(msg);
+                if (text != null) return text;
+            } catch (NoSuchMethodException ignored) {
             } catch (Exception ignored) {
             }
         }
         return result.toString();
     }
 
+    private String extractMessageText(Object msg) {
+        if (msg == null) return null;
+        if (msg instanceof String s) return s;
+        for (String accessor : new String[]{"text", "getText", "textContent"}) {
+            try {
+                Method m = msg.getClass().getMethod(accessor);
+                Object t = m.invoke(msg);
+                if (t != null) return t.toString();
+            } catch (NoSuchMethodException ignored) {
+            } catch (Exception ignored) {
+            }
+        }
+        return null;
+    }
+
     private String toChatOnlyPrompt(List<ChatMessage> messages) {
         StringBuilder sb = new StringBuilder();
         for (ChatMessage msg : messages) {
-            if (msg instanceof SystemMessage) sb.append("System: ").append(msg.text()).append('\n');
-            else if (msg instanceof UserMessage) sb.append("User: ").append(msg.text()).append('\n');
-            else if (msg instanceof AiMessage) sb.append("Assistant: ").append(msg.text()).append('\n');
-            else sb.append(msg.text()).append('\n');
+            String prefix;
+            String text;
+            if (msg instanceof SystemMessage sm) {
+                prefix = "System";
+                text = sm.text();
+            } else if (msg instanceof UserMessage um) {
+                // UserMessage.text() 已弃用，改用 contents() 提取文本
+                prefix = "User";
+                text = userMessageText(um);
+            } else if (msg instanceof AiMessage am) {
+                prefix = "Assistant";
+                text = am.text();
+            } else {
+                continue;
+            }
+            sb.append(prefix).append(": ").append(text).append('\n');
         }
         sb.append("Assistant: ");
         return sb.toString();
+    }
+
+    private String userMessageText(UserMessage um) {
+        for (Content c : um.contents()) {
+            if (c instanceof TextContent tc) {
+                String t = tc.text();
+                if (t != null) return t;
+            }
+        }
+        return "";
     }
 
     private Long resolveSessionId(Long userId, AiChatRequest request) {

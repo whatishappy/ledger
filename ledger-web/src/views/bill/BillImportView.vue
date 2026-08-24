@@ -195,7 +195,7 @@ onMounted(loadSupport)
     </el-card>
 
     <!-- 步骤 2：预览解析 -->
-    <el-card v-else shadow="never" class="step-card">
+    <el-card v-else-if="active === 1" shadow="never" class="step-card">
       <div class="upload-info">
         <el-icon><Document /></el-icon>
         <span>{{ uploadedFile?.name }}</span>

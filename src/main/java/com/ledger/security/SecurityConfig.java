@@ -19,6 +19,8 @@ import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
+import jakarta.servlet.DispatcherType;
+
 import java.util.List;
 
 /**
@@ -53,6 +55,12 @@ public class SecurityConfig {
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 // 授权规则
                 .authorizeHttpRequests(auth -> auth
+                        // 放行所有内部转发/异步/错误 dispatch：SSE 流式响应提交后若触发 error dispatch，
+                        // 此时 response 已提交，Security 再拒绝会报 "response already committed"。
+                        // 实际观察 error 可经 ASYNC/INCLUDE/ERROR/FORWARD 任意路径进入，故全部放行；
+                        // 只有真正的 REQUEST（客户端请求）才执行认证
+                        .dispatcherTypeMatchers(DispatcherType.ASYNC, DispatcherType.FORWARD,
+                                DispatcherType.INCLUDE, DispatcherType.ERROR).permitAll()
                         // 公开路径
                         .requestMatchers(
                                 "/api/user/register",

@@ -130,12 +130,12 @@ langchain4j:
   primary:
     base-url: https://apihub.agnes-ai.cn/v1
     api-key: ${AI_PRIMARY_API_KEY:sk-V9U7JgvceJCnjIqJ1bxa6acnfX0iaJAAtRfxqyc3JrdkxaSK}
-    model-name: Agnes-2.5-Flash
-    timeout: 60s
+    model-name: agnes-2.5-flash
+    timeout: 90s
     temperature: 0.3
   backup:
     base-url: https://tokenhub.tencentmaas.com/v1
-    api-key: ${AI_BACKUP_API_KEY:sk-eeac7bd693474efeb8c12feb67e15a59}
+    api-key: ${AI_BACKUP_API_KEY:sk-XSGgVIMTytcEXCmsr8VrCPsTFg23daklHVorP7l1k2NcLVHc}
     model-name: deepseek-v4-flash
     timeout: 60s
     temperature: 0.3
@@ -153,9 +153,9 @@ minio:
   bucket-name: ledger-avatars
   expiry-seconds: 3600
 
-# AI Embedding 配置（ModelScope）
+# AI Embedding 配置（TokenHub）
 ai:
   embedding:
-    api-url: https://api-inference.modelscope.cn/v1/embeddings
-    api-key: ${AI_MODELSCOPE_API_KEY:ms-66b0fae5-ddab-4579-a982-4c7798e121f7}
-    model: Qwen3-Embedding-0.6B-GGUF
+    api-url: https://tokenhub.tencentmaas.com/v1/embeddings
+    api-key: ${AI_EMBEDDING_API_KEY:sk-XSGgVIMTytcEXCmsr8VrCPsTFg23daklHVorP7l1k2NcLVHc}
+    model: kinfra-text-embedding-0.6b

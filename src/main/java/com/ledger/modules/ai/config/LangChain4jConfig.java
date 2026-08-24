@@ -58,6 +58,8 @@ public class LangChain4jConfig {
                 .modelName(primaryModelName)
                 .timeout(primaryTimeout)
                 .temperature(primaryTemperature)
+                // 禁用内部重试：避免单个慢请求 ×3 重试拖死整个 SSE 流（最坏 3×timeout 无响应）
+                .maxRetries(0)
                 .build();
     }
 
@@ -89,6 +91,7 @@ public class LangChain4jConfig {
                 .modelName(backupModelName)
                 .timeout(backupTimeout)
                 .temperature(backupTemperature)
+                .maxRetries(0)
                 .build();
     }
 

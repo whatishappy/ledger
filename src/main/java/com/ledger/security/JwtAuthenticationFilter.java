@@ -118,6 +118,8 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                 || path.startsWith("/webjars/")
                 || path.startsWith("/actuator")
                 || path.startsWith("/favicon.ico")
-                || path.startsWith("/swagger-resources");
+                || path.startsWith("/swagger-resources")
+                // 错误页 dispatch：SSE 响应已提交后 error 转发无需重复鉴权
+                || path.startsWith("/error");
     }
 }
