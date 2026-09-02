@@ -386,6 +386,7 @@ Dockerfile 已内置 `HEALTHCHECK`，每 30s 探测一次。
 | 预算查询 SQL 过多 | 确认使用 `sumSpentGroupByCategory`，而非循环查询 |
 | AI 对话返回 6007 | 主备模型均不可用，检查 API Key 配额与网络 |
 | AI 对话返回 6002 | 当日配额已用尽（50 次 / 10 万 Token） |
+| AI 对话返回 6011 | AI 服务未配置，未在 `application-local.yml` / 环境变量中提供 `AI_PRIMARY_API_KEY` 等 |
 | 前端构建 OOM | `NODE_OPTIONS=--max-old-space-size=4096 npm run build` |
 | 前端路由 404 | Nginx 未配置 `try_files $uri $uri/ /index.html` |
 

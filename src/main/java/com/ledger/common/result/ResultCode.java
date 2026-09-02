@@ -62,7 +62,8 @@ public enum ResultCode {
     AI_CONTENT_VIOLATION(6003, "AI请求内容违规"),
     AI_OCR_FAILED(6004, "OCR识别失败"),
     AI_REPORT_FAILED(6005, "报告生成失败"),
-    AI_OPERATION_BLACKLISTED(6006, "AI操作在黑名单中，禁止执行");
+    AI_OPERATION_BLACKLISTED(6006, "AI操作在黑名单中，禁止执行"),
+    AI_SERVICE_UNCONFIGURED(6011, "AI服务未配置，请联系管理员配置API Key");
 
     private final int code;
     private final String message;

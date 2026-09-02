@@ -112,8 +112,8 @@ jwt:
   access-token-expiration: 7200
   # Refresh Token 有效期（秒）：7天
   refresh-token-expiration: 604800
-  # 密钥（生产环境通过环境变量 JWT_SECRET 覆盖）
-  secret: ${JWT_SECRET:ledger-dev-jwt-secret-key-please-change-in-production-environment-2026}
+  # 密钥（必须通过环境变量 JWT_SECRET 设置，否则应用拒绝启动）
+  secret: ${JWT_SECRET}
 
 # 日志配置
 logging:
@@ -129,27 +129,27 @@ logging:
 langchain4j:
   primary:
     base-url: https://apihub.agnes-ai.cn/v1
-    api-key: ${AI_PRIMARY_API_KEY:sk-V9U7JgvceJCnjIqJ1bxa6acnfX0iaJAAtRfxqyc3JrdkxaSK}
+    api-key: ${AI_PRIMARY_API_KEY:}
     model-name: agnes-2.5-flash
     timeout: 90s
     temperature: 0.3
   backup:
     base-url: https://tokenhub.tencentmaas.com/v1
-    api-key: ${AI_BACKUP_API_KEY:sk-XSGgVIMTytcEXCmsr8VrCPsTFg23daklHVorP7l1k2NcLVHc}
+    api-key: ${AI_BACKUP_API_KEY:}
     model-name: deepseek-v4-flash
     timeout: 60s
     temperature: 0.3
   embedding:
     base-url: https://tokenhub.tencentmaas.com/v1
-    api-key: ${AI_EMBEDDING_API_KEY:sk-XSGgVIMTytcEXCmsr8VrCPsTFg23daklHVorP7l1k2NcLVHc}
+    api-key: ${AI_EMBEDDING_API_KEY:}
     model-name: kinfra-text-embedding-0.6b
     timeout: 30s
 
 # MinIO 对象存储配置
 minio:
   endpoint: http://localhost:9000
-  access-key: minioadmin
-  secret-key: minioadmin
+  access-key: ${MINIO_ACCESS_KEY:minioadmin}
+  secret-key: ${MINIO_SECRET_KEY:minioadmin}
   bucket-name: ledger-avatars
   expiry-seconds: 3600
 
@@ -157,5 +157,5 @@ minio:
 ai:
   embedding:
     api-url: https://tokenhub.tencentmaas.com/v1/embeddings
-    api-key: ${AI_EMBEDDING_API_KEY:sk-XSGgVIMTytcEXCmsr8VrCPsTFg23daklHVorP7l1k2NcLVHc}
+    api-key: ${AI_EMBEDDING_API_KEY:}
     model: kinfra-text-embedding-0.6b

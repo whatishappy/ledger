@@ -30,6 +30,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.redisson.api.RDeque;
 import org.redisson.api.RedissonClient;
+import org.springframework.beans.factory.ObjectProvider;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Sinks;
@@ -55,8 +56,9 @@ public class AiChatServiceImpl implements AiChatService {
     private final AiChatSessionMapper sessionMapper;
     private final AiChatMessageMapper messageMapper;
     private final LedgerAiTools ledgerAiTools;
-    private final ChatLanguageModel chatLanguageModel;
-    private final ChatLanguageModel backupChatLanguageModel;
+    // 使用 ObjectProvider 让 AI key 缺失（Bean 返回 null）时也能启动，调用时再判空降级
+    private final ObjectProvider<ChatLanguageModel> chatLanguageModelProvider;
+    private final ObjectProvider<ChatLanguageModel> backupChatLanguageModelProvider;
     private final RedissonClient redissonClient;
     private final ObjectMapper objectMapper;
 
@@ -143,11 +145,17 @@ public class AiChatServiceImpl implements AiChatService {
                 aiGuardService.recordPrimarySuccess();
                 if (rawModelOutput == null) rawModelOutput = "";
             } catch (Exception e) {
+                // 6011 = AI 服务未配置，属环境问题而非模型调用失败，直接穿透降级逻辑
+                if (e instanceof BusinessException be
+                        && be.getResultCode() == ResultCode.AI_SERVICE_UNCONFIGURED) {
+                    throw be;
+                }
                 log.warn("模型调用异常，迭代={}, error={}", i, e.getMessage());
                 aiGuardService.recordPrimaryFail();
-                if (i == 0 && backupChatLanguageModel != null) {
+                ChatLanguageModel backup = backupChatLanguageModelProvider.getIfAvailable();
+                if (i == 0 && backup != null) {
                     try {
-                        rawModelOutput = callModelViaReflection(backupChatLanguageModel, loopMessages);
+                        rawModelOutput = callModelViaReflection(backup, loopMessages);
                         aiGuardService.recordBackupSuccess();
                         if (rawModelOutput == null) rawModelOutput = "";
                     } catch (Exception ex) {
@@ -347,17 +355,19 @@ public class AiChatServiceImpl implements AiChatService {
     }
 
     private ChatLanguageModel selectModel() {
-        if (aiGuardService.isDegraded() && backupChatLanguageModel != null) {
+        ChatLanguageModel backup = backupChatLanguageModelProvider.getIfAvailable();
+        if (aiGuardService.isDegraded() && backup != null) {
             log.debug("使用备用模型（降级模式）");
-            return backupChatLanguageModel;
+            return backup;
         }
-        if (chatLanguageModel != null) {
-            return chatLanguageModel;
+        ChatLanguageModel primary = chatLanguageModelProvider.getIfAvailable();
+        if (primary != null) {
+            return primary;
         }
-        if (backupChatLanguageModel != null) {
-            return backupChatLanguageModel;
+        if (backup != null) {
+            return backup;
         }
-        throw new BusinessException(ResultCode.AI_CHAT_FAILED, "AI模型未配置，请检查langchain4j设置");
+        throw new BusinessException(ResultCode.AI_SERVICE_UNCONFIGURED);
     }
 
     private void emitChunks(Sinks.Many<String> sink, String text) {

@@ -4,16 +4,16 @@ spring:
     driver-class-name: com.mysql.cj.jdbc.Driver
     url: jdbc:mysql://localhost:3306/ledger?useUnicode=true&characterEncoding=utf8&useSSL=false&serverTimezone=Asia/Shanghai&allowPublicKeyRetrieval=true
     username: root
-    password: 123456
+    password: ${MYSQL_PASSWORD:123456}
   sql:
     init:
       mode: always
       schema-locations: classpath:db/schema.sql
   data:
     redis:
-      host: 192.168.10.101
+      host: 127.0.0.1
       port: 6379
-      password: 123456
+      password: ${REDIS_PASSWORD:123456}
       database: 0
       timeout: 3000ms
 
